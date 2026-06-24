@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 64">
+  <defs>
+    <linearGradient id="rollerPaint" x1="0" x2="1">
+      <stop offset="0" stop-color="#f2aa24"/>
+      <stop offset="1" stop-color="#c86a14"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="47" cy="53" rx="33" ry="7" fill="#202522" opacity=".34"/>
+  <rect x="11" y="30" width="24" height="24" rx="10" fill="#4d5853" stroke="#262c2a" stroke-width="2"/>
+  <rect x="13" y="34" width="20" height="6" rx="3" fill="#79847f"/>
+  <path d="M39 21h28c7 0 12 5 12 12v16H35V30c0-5 2-9 4-9z" fill="url(#rollerPaint)" stroke="#743b0d" stroke-width="2"/>
+  <rect x="55" y="12" width="19" height="18" rx="5" fill="#f2bd3c" stroke="#743b0d" stroke-width="2"/>
+  <rect x="60" y="16" width="9" height="9" rx="2" fill="#344a56"/>
+  <circle cx="49" cy="47" r="6" fill="#171b19"/>
+  <circle cx="71" cy="47" r="6" fill="#171b19"/>
+</svg>

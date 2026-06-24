@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>F2 Compaction Control</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow" data-i18n="eyebrow">Onshore Compaction Control</p>
+        <h1 data-i18n="title">F2 Progress & Machine Planner</h1>
+      </div>
+      <div class="topbar-actions">
+        <label class="select-wrap">
+          <span data-i18n="language">ภาษา</span>
+          <select id="languageSelect" aria-label="Language">
+            <option value="th">ไทย</option>
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+          </select>
+        </label>
+        <button class="ghost-button" id="resetButton" type="button" data-i18n="reset">รีเซ็ตข้อมูล</button>
+        <button class="ghost-button" id="shareLinkButton" type="button" data-i18n="shareLink">แชร์ลิงก์สถานะล่าสุด</button>
+        <span class="last-updated"><span data-i18n="lastUpdated">แก้ไขล่าสุด</span>: <strong id="lastUpdatedText">-</strong></span>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="map-section" aria-labelledby="mapTitle">
+        <div class="section-head">
+          <div>
+            <h2 id="mapTitle" data-i18n="mapTitle">แผนที่พื้นที่ F2</h2>
+            <p data-i18n="mapSub">ติดตามโซนบดอัด, พิกัดเครื่องจักร และเส้นทางรถบรรทุกทราย</p>
+          </div>
+          <div class="map-tools" aria-label="Map controls">
+            <button class="icon-button" id="zoomOutButton" type="button" aria-label="Zoom out">−</button>
+            <input id="zoomRange" type="range" min="1" max="3.5" step="0.1" value="1" aria-label="Map zoom" />
+            <button class="icon-button" id="zoomInButton" type="button" aria-label="Zoom in">+</button>
+            <button class="ghost-button" id="resetViewButton" type="button" data-i18n="resetView">รีเซ็ตมุมมอง</button>
+            <div class="status-chip">
+              <span class="live-dot"></span>
+              <span data-i18n="adminMode">Admin Drag Mode</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="map-frame" id="mapFrame">
+          <div class="map-content" id="mapContent">
+            <img src="assets/F2.jpg" alt="F2 reclamation and compaction site map" />
+            <svg class="work-overlay" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="zoneGradient" x1="0" x2="1" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#22c55e" />
+                  <stop offset="100%" stop-color="#0ea5e9" />
+                </linearGradient>
+                <marker id="routeArrow" markerWidth="14" markerHeight="14" refX="11" refY="5" orient="auto" markerUnits="strokeWidth">
+                  <path d="M0,0 L12,5 L0,10 Z" fill="#b93422" />
+                </marker>
+              </defs>
+              <g id="staGridLayer"></g>
+              <polygon class="f2-boundary" id="f2Boundary" points="" />
+              <polygon class="zone zone-a" points="116,205 413,203 421,331 115,351" />
+              <polygon class="zone zone-b" points="430,203 890,204 886,328 428,333" />
+              <polygon class="zone zone-c" points="119,364 426,344 888,340 876,466 527,507 118,495" />
+              <polygon class="zone zone-d" points="122,507 529,518 865,479 832,535 636,587 250,588 123,530" />
+              <polyline class="truck-route" id="truckRoute" points="" marker-end="url(#routeArrow)" />
+              <g id="inspectionLayer"></g>
+              <g id="editorHandles"></g>
+            </svg>
+            <div id="machineLayer"></div>
+            <div class="truck truck-a"></div>
+            <div class="truck truck-b"></div>
+            <button class="map-label label-zone-a" type="button" data-elevation="1.6m">1.6m</button>
+            <button class="map-label label-zone-b" type="button" data-elevation="2.0m">2.0m</button>
+            <button class="map-label label-zone-c" type="button" data-elevation="2.4m">2.4m</button>
+            <button class="map-label label-zone-d" type="button" data-elevation="3.0m">3.0m</button>
+          </div>
+          <div class="drag-hint" data-i18n="dragHint">ใช้ล้อเมาส์เพื่อซูม, ลากพื้นแผนที่เพื่อเลื่อน, ลากเครื่องจักรเพื่ออัปเดตพิกัด</div>
+        </div>
+      </section>
+
+      <aside class="control-panel" aria-label="Project controls">
+        <section class="panel-section">
+          <div class="section-head compact">
+            <h2 data-i18n="summary">ภาพรวมวันนี้</h2>
+            <time id="todayText">2026-06-24</time>
+          </div>
+          <div class="metric-grid">
+            <div class="metric">
+              <span data-i18n="overall">Progress รวม</span>
+              <strong id="overallProgress">0%</strong>
+            </div>
+            <div class="metric">
+              <span data-i18n="volume">ทรายรับเข้า</span>
+              <strong id="sandVolume">0 m3</strong>
+            </div>
+            <div class="metric">
+              <span data-i18n="activeMachines">เครื่องจักรใช้งาน</span>
+              <strong id="activeMachines">0/15</strong>
+            </div>
+            <div class="metric">
+              <span data-i18n="hours">ชั่วโมงรวม</span>
+              <strong id="totalHours">0h</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2 data-i18n="adminTools">เครื่องมือแอดมิน</h2>
+          <div class="admin-tools">
+            <label>
+              <span data-i18n="editMode">โหมดแก้ไข</span>
+              <select id="editModeSelect">
+                <option value="machine" data-i18n="modeMachine">ย้ายเครื่องจักร</option>
+                <option value="route" data-i18n="modeRoute">แก้เส้นทางรถบรรทุก</option>
+                <option value="boundary" data-i18n="modeBoundary">แก้ขอบพื้นที่ F2</option>
+                <option value="plot" data-i18n="modePlot">แบ่งแปลง Inspection</option>
+                <option value="grid" data-i18n="modeGrid">ปรับ STA/Offset Grid</option>
+              </select>
+            </label>
+            <div class="tool-row">
+              <button class="ghost-button" id="addRoutePointButton" type="button" data-i18n="addRoutePoint">เพิ่มจุดเส้นทาง</button>
+              <button class="ghost-button" id="addPlotButton" type="button" data-i18n="addPlot">เพิ่มแปลง</button>
+            </div>
+            <button class="ghost-button" id="resetMapEditButton" type="button" data-i18n="resetMapEdit">รีเซ็ตขอบ/เส้น/แปลง</button>
+            <div class="machine-type-filter">
+              <span data-i18n="machineVisibility">แสดงเครื่องจักร</span>
+              <label><input type="checkbox" data-machine-type-toggle="grader" /> <span data-i18n="grader">รถเกรดเดอร์</span></label>
+              <label><input type="checkbox" data-machine-type-toggle="excavator" /> <span data-i18n="excavator">รถขุด</span></label>
+              <label><input type="checkbox" data-machine-type-toggle="dozer" /> <span data-i18n="dozer">รถ bulldozer</span></label>
+              <label><input type="checkbox" data-machine-type-toggle="roller" /> <span data-i18n="roller">รถบด roller</span></label>
+            </div>
+            <label class="check-row">
+              <input id="showStaGridInput" type="checkbox" />
+              <span data-i18n="showStaGrid">แสดง STA/Offset Grid</span>
+            </label>
+            <label class="check-row">
+              <input id="showBoundaryInput" type="checkbox" />
+              <span data-i18n="showBoundary">แสดงขอบพื้นที่ F2</span>
+            </label>
+            <label class="check-row">
+              <input id="showStatusBadgeInput" type="checkbox" />
+              <span data-i18n="showStatusBadge">แสดงเครื่องหมายสถานะ ✓/×</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2 data-i18n="inspectionEditor">Inspection Editor</h2>
+          <div class="admin-tools">
+            <label>
+              <span data-i18n="selectPlot">เลือกแปลง</span>
+              <select id="plotSelect"></select>
+            </label>
+            <button class="ghost-button" id="addPlotEditorButton" type="button" data-i18n="addPlot">เพิ่มแปลง</button>
+            <label>
+              <span data-i18n="plotLabel">ชื่อ/วันที่แสดง</span>
+              <input id="plotLabelInput" type="text" />
+            </label>
+            <label>
+              <span data-i18n="plotLevel">ระดับแปลง</span>
+              <select id="plotLevelSelect">
+                <option value="1.6m">1.6m</option>
+                <option value="2.0m">2.0m</option>
+                <option value="2.4m">2.4m</option>
+                <option value="3.0m">3.0m</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="plotColor">สีแปลง</span>
+              <input id="plotColorInput" type="color" value="#1577b8" />
+            </label>
+            <div class="tool-row">
+              <button class="ghost-button" id="savePlotButton" type="button" data-i18n="savePlot">บันทึกแปลง</button>
+              <button class="ghost-button danger" id="deletePlotButton" type="button" data-i18n="deletePlot">ลบแปลง</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2 data-i18n="layers">ชั้นบดอัด</h2>
+          <div class="layer-list" id="layerList"></div>
+        </section>
+
+        <section class="panel-section">
+          <h2 data-i18n="machineFleet">เครื่องจักร</h2>
+          <div class="fleet-list" id="fleetList"></div>
+        </section>
+
+        <section class="panel-section">
+          <h2 data-i18n="machineDetails">ข้อมูลเครื่องจักรรายคัน</h2>
+          <div class="machine-editor" id="machineEditor"></div>
+        </section>
+
+        <section class="panel-section">
+          <h2 data-i18n="dailyUpdate">อัปเดตงานวันนี้</h2>
+          <form class="update-form" id="updateForm">
+            <label>
+              <span data-i18n="reportDate">วันที่รายงาน</span>
+              <input id="reportDateInput" type="date" />
+            </label>
+            <label>
+              <span data-i18n="truckTrips">จำนวนเที่ยวรถบรรทุกแดง</span>
+              <input id="truckTripsInput" type="number" min="0" step="1" value="72" />
+            </label>
+            <label>
+              <span data-i18n="shiftNote">บันทึกกะงาน</span>
+              <textarea id="shiftNoteInput" rows="4"></textarea>
+            </label>
+            <button class="primary-button" type="submit" data-i18n="saveUpdate">บันทึกอัปเดต</button>
+          </form>
+          <div class="report-actions">
+            <button class="ghost-button" id="generateReportButton" type="button" data-i18n="generateReport">สรุปรายงาน</button>
+            <button class="ghost-button" id="saveImageButton" type="button" data-i18n="saveImage">Save image รายวัน</button>
+          </div>
+          <textarea id="reportOutput" class="report-output" rows="8" readonly></textarea>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <span data-i18n="footer">F2 Onshore Compaction after Cutter Suction Dredging Reclamation</span>
+    </footer>
+
+    <dialog class="section-modal" id="sectionModal">
+      <div class="modal-head">
+        <h2 id="sectionTitle">Elevation Section</h2>
+        <button class="icon-button" id="closeSectionButton" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="section-visual" id="sectionVisual">
+        <div class="water-line"></div>
+        <div class="soil-layer layer-base"></div>
+        <div class="soil-layer layer-16"></div>
+        <div class="soil-layer layer-20"></div>
+        <div class="soil-layer layer-24"></div>
+        <div class="soil-layer layer-30"></div>
+        <div class="level-tag tag-16">+1.6m</div>
+        <div class="level-tag tag-20">+2.0m</div>
+        <div class="level-tag tag-24">+2.4m</div>
+        <div class="level-tag tag-30">+3.0m</div>
+        <div class="section-cut-line"></div>
+        <div class="side-machine side-dozer"></div>
+        <div class="side-machine side-roller"></div>
+      </div>
+      <p id="sectionCaption"></p>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>

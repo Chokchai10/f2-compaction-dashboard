@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 58">
+  <defs>
+    <linearGradient id="graderPaint" x1="0" x2="1">
+      <stop offset="0" stop-color="#f5b21b"/>
+      <stop offset="1" stop-color="#d2700c"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="64" cy="49" rx="48" ry="7" fill="#202522" opacity=".3"/>
+  <path d="M19 28h30l19-13h24c9 0 15 6 15 15v8H20z" fill="url(#graderPaint)" stroke="#724107" stroke-width="2"/>
+  <rect x="72" y="8" width="23" height="19" rx="5" fill="#f4bf3c" stroke="#724107" stroke-width="2"/>
+  <rect x="78" y="12" width="12" height="9" rx="2" fill="#344a56"/>
+  <path d="M45 39l43-8 3 7-41 12z" fill="#b7bbb8" stroke="#555d59" stroke-width="2"/>
+  <path d="M14 25h20v8H8z" fill="#c9cfcc" stroke="#555d59" stroke-width="2"/>
+  <circle cx="28" cy="42" r="8" fill="#171b19"/>
+  <circle cx="28" cy="42" r="4" fill="#606a64"/>
+  <circle cx="74" cy="42" r="7" fill="#171b19"/>
+  <circle cx="74" cy="42" r="3.5" fill="#606a64"/>
+  <circle cx="104" cy="42" r="8" fill="#171b19"/>
+  <circle cx="104" cy="42" r="4" fill="#606a64"/>
+</svg>
