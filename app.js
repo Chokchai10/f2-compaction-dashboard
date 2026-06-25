@@ -5,6 +5,12 @@ const dictionaries = {
     language: "ภาษา",
     reset: "รีเซ็ตข้อมูล",
     resetView: "รีเซ็ตมุมมอง",
+    fullscreenMap: "เต็มจอ",
+    exitFullscreen: "ออกเต็มจอ",
+    isoView: "3D",
+    flatView: "2D",
+    tools: "เครื่องมือ",
+    hideTools: "ซ่อนเครื่องมือ",
     adminMode: "Admin Drag Mode",
     dragHint: "ใช้ล้อเมาส์เพื่อซูม, ลากพื้นแผนที่เพื่อเลื่อน, ลากเครื่องจักรเพื่ออัปเดตพิกัด",
     adminTools: "เครื่องมือแอดมิน",
@@ -15,12 +21,31 @@ const dictionaries = {
     modePlot: "แบ่งแปลง Inspection",
     modeGrid: "ปรับ STA/Offset Grid",
     addRoutePoint: "เพิ่มจุดเส้นทาง",
+    routeLines: "จำนวนเส้นทางรถบรรทุกแดง",
+    editRouteLine: "แก้ไขเส้นทาง",
+    adminLogin: "ล็อกอินแอดมิน",
+    logout: "ออกจากระบบ",
+    visitors: "ผู้เข้าชม",
+    login: "เข้าสู่ระบบ",
+    viewerMode: "ดูแบบผู้ชม",
+    loginError: "User หรือ Password ไม่ถูกต้อง",
+    referenceImages: "รูปอ้างอิง",
+    addImage: "เพิ่มรูป",
+    deleteImage: "ลบรูป",
+    emptyImage: "ยังไม่มีรูป",
     addPlot: "เพิ่มแปลง",
     resetMapEdit: "รีเซ็ตขอบ/เส้น/แปลง",
     showStaGrid: "แสดง STA/Offset Grid",
     showBoundary: "แสดงขอบพื้นที่ F2",
     showStatusBadge: "แสดงเครื่องหมายสถานะ ✓/×",
     machineVisibility: "แสดงเครื่องจักร",
+    machineWorkingStatus: "สถานะการทำงานของเครื่องจักร",
+    statusSelectHint: "เลือกสถานะรายคัน",
+    onStatus: "On",
+    stopBroken: "Stop (เสีย)",
+    standby: "Standby",
+    dayShift: "กะกลางวัน",
+    nightShift: "กะกลางคืน",
     shareLink: "แชร์ลิงก์สถานะล่าสุด",
     lastUpdated: "แก้ไขล่าสุด",
     machinePhoto: "รูปเครื่อง",
@@ -78,6 +103,12 @@ const dictionaries = {
     language: "Language",
     reset: "Reset data",
     resetView: "Reset view",
+    fullscreenMap: "Full screen",
+    exitFullscreen: "Exit full screen",
+    isoView: "3D",
+    flatView: "2D",
+    tools: "Tools",
+    hideTools: "Hide tools",
     adminMode: "Admin drag mode",
     dragHint: "Mouse wheel to zoom, drag the map to pan, drag machines to update positions",
     adminTools: "Admin tools",
@@ -88,12 +119,31 @@ const dictionaries = {
     modePlot: "Inspection plots",
     modeGrid: "Adjust STA/Offset Grid",
     addRoutePoint: "Add route point",
+    routeLines: "Red truck route lines",
+    editRouteLine: "Edit route line",
+    adminLogin: "Admin login",
+    logout: "Logout",
+    visitors: "Visitors",
+    login: "Login",
+    viewerMode: "View only",
+    loginError: "User or password is incorrect",
+    referenceImages: "Reference images",
+    addImage: "Add image",
+    deleteImage: "Delete",
+    emptyImage: "No image",
     addPlot: "Add plot",
     resetMapEdit: "Reset boundary/route/plots",
     showStaGrid: "Show STA/Offset Grid",
     showBoundary: "Show F2 boundary",
     showStatusBadge: "Show status ✓/×",
     machineVisibility: "Machine visibility",
+    machineWorkingStatus: "Machine operating status",
+    statusSelectHint: "Select each machine status",
+    onStatus: "On",
+    stopBroken: "Stop (Broken)",
+    standby: "Standby",
+    dayShift: "Day shift",
+    nightShift: "Night shift",
     shareLink: "Share latest status link",
     lastUpdated: "Last updated",
     machinePhoto: "Machine photo",
@@ -151,6 +201,12 @@ const dictionaries = {
     language: "语言",
     reset: "重置数据",
     resetView: "重置视图",
+    fullscreenMap: "全屏",
+    exitFullscreen: "退出全屏",
+    isoView: "3D",
+    flatView: "2D",
+    tools: "工具",
+    hideTools: "隐藏工具",
     adminMode: "管理员拖动模式",
     dragHint: "滚轮缩放，拖动地图平移，拖动机械更新坐标",
     adminTools: "管理员工具",
@@ -161,12 +217,31 @@ const dictionaries = {
     modePlot: "Inspection 分区",
     modeGrid: "调整 STA/Offset 网格",
     addRoutePoint: "添加路线点",
+    routeLines: "红色卡车路线数量",
+    editRouteLine: "编辑路线",
+    adminLogin: "管理员登录",
+    logout: "退出",
+    visitors: "访客",
+    login: "登录",
+    viewerMode: "访客模式",
+    loginError: "用户名或密码不正确",
+    referenceImages: "参考图片",
+    addImage: "添加图片",
+    deleteImage: "删除图片",
+    emptyImage: "暂无图片",
     addPlot: "添加分区",
     resetMapEdit: "重置边界/路线/分区",
     showStaGrid: "显示 STA/Offset 网格",
     showBoundary: "显示 F2 边界",
     showStatusBadge: "显示状态 ✓/×",
     machineVisibility: "显示机械",
+    machineWorkingStatus: "机械运行状态",
+    statusSelectHint: "选择每台机械的状态",
+    onStatus: "运行",
+    stopBroken: "停止（故障）",
+    standby: "待命",
+    dayShift: "白班",
+    nightShift: "夜班",
     shareLink: "分享最新状态链接",
     lastUpdated: "最后更新",
     machinePhoto: "机械照片",
@@ -221,21 +296,21 @@ const dictionaries = {
 };
 
 const machineDefaults = [
-  { id: "m1", type: "excavator", x: 28, y: 32, angle: -8 },
-  { id: "m2", type: "excavator", x: 40, y: 36, angle: 9 },
-  { id: "m3", type: "excavator", x: 55, y: 41, angle: -14 },
-  { id: "m4", type: "excavator", x: 70, y: 50, angle: 16 },
-  { id: "m5", type: "dozer", x: 21, y: 49, angle: -3 },
-  { id: "m6", type: "dozer", x: 33, y: 50, angle: 4 },
-  { id: "m7", type: "dozer", x: 45, y: 50, angle: -6 },
-  { id: "m8", type: "dozer", x: 57, y: 53, angle: 8 },
-  { id: "m9", type: "dozer", x: 67, y: 49, angle: -10 },
-  { id: "m10", type: "dozer", x: 77, y: 47, angle: 12 },
-  { id: "m11", type: "dozer", x: 84, y: 57, angle: -7 },
-  { id: "m12", type: "dozer", x: 28, y: 62, angle: 11 },
-  { id: "m13", type: "grader", x: 51, y: 67, angle: -9 },
-  { id: "m14", type: "roller", x: 42, y: 60, angle: 7 },
-  { id: "m15", type: "roller", x: 62, y: 62, angle: -6 },
+  { id: "m1", type: "excavator", x: 28, y: 32, angle: 90 },
+  { id: "m2", type: "excavator", x: 40, y: 36, angle: 90 },
+  { id: "m3", type: "excavator", x: 55, y: 41, angle: 90 },
+  { id: "m4", type: "excavator", x: 70, y: 50, angle: 90 },
+  { id: "m5", type: "dozer", x: 21, y: 49, angle: 90 },
+  { id: "m6", type: "dozer", x: 33, y: 50, angle: 90 },
+  { id: "m7", type: "dozer", x: 45, y: 50, angle: 90 },
+  { id: "m8", type: "dozer", x: 57, y: 53, angle: 90 },
+  { id: "m9", type: "dozer", x: 67, y: 49, angle: 90 },
+  { id: "m10", type: "dozer", x: 77, y: 47, angle: 90 },
+  { id: "m11", type: "dozer", x: 84, y: 57, angle: 90 },
+  { id: "m12", type: "dozer", x: 28, y: 62, angle: 90 },
+  { id: "m13", type: "grader", x: 51, y: 67, angle: 90 },
+  { id: "m14", type: "roller", x: 42, y: 60, angle: 90 },
+  { id: "m15", type: "roller", x: 62, y: 62, angle: 90 },
 ];
 
 const defaultMachinePositions = Object.fromEntries(
@@ -263,6 +338,16 @@ const defaultRoutePoints = [
   { x: 897, y: 294 },
 ];
 
+const defaultRoutePointsSecondary = [
+  { x: 145, y: 590 },
+  { x: 268, y: 555 },
+  { x: 385, y: 520 },
+  { x: 512, y: 488 },
+  { x: 648, y: 452 },
+  { x: 792, y: 404 },
+  { x: 910, y: 340 },
+];
+
 const defaultInspectionPlots = [
   { id: "F2-A1", label: "2026-06-25", level: "2.0m", color: "#1577b8", x: 140, y: 225, w: 185, h: 92 },
   { id: "F2-B1", label: "2026-06-25", level: "2.0m", color: "#1f9d55", x: 365, y: 225, w: 205, h: 92 },
@@ -285,28 +370,39 @@ const defaultMachineDetails = Object.fromEntries(
       workTime: "08:00-17:00",
       status: "normal",
       downTime: "",
+      shifts: machine.type === "dozer" ? { day: true, night: false } : undefined,
     },
   ])
 );
+
+const defaultReferenceImages = [
+  { id: "ref-1", label: "Reference 1", src: "assets/F2-isometric.jpg", builtin: true },
+  null,
+  null,
+];
 
 const defaultState = {
   language: "th",
   truckTrips: 72,
   shiftNote: "",
   reportDate: new Date().toISOString().slice(0, 10),
-  view: { zoom: 1, panX: 0, panY: 0 },
+  view: { zoom: 1, panX: 0, panY: 0, isometric: false, rotation: 0 },
   machinePositions: defaultMachinePositions,
   editMode: "machine",
   boundaryPoints: defaultBoundaryPoints,
   routePoints: defaultRoutePoints,
+  routePointsSecondary: defaultRoutePointsSecondary,
+  routeDisplayCount: 2,
+  activeRouteLine: 2,
   inspectionPlots: defaultInspectionPlots,
   selectedPlotId: "F2-A1",
-  showStaGrid: true,
+  showStaGrid: false,
   showBoundary: true,
   showStatusBadge: true,
   machineTypeVisibility: { grader: true, excavator: true, dozer: true, roller: true },
   gridFrame: defaultGridFrame,
   machineDetails: defaultMachineDetails,
+  referenceImages: defaultReferenceImages,
   activeMachineId: "m1",
   lastUpdated: new Date().toISOString(),
   layers: [
@@ -321,9 +417,13 @@ const defaultState = {
     { id: "grader", count: 1, active: 1, hours: 6.5 },
     { id: "roller", count: 2, active: 2, hours: 7.5 },
   ],
+  schemaVersion: 5,
 };
 
 const storageKey = "f2-compaction-dashboard-state";
+const adminSessionKey = "f2-compaction-admin-session";
+const visitorCountKey = "f2-compaction-visitor-count";
+const visitorSessionKey = "f2-compaction-visitor-session";
 let state = loadState();
 
 const languageSelect = document.querySelector("#languageSelect");
@@ -334,6 +434,7 @@ const shiftNoteInput = document.querySelector("#shiftNoteInput");
 const updateForm = document.querySelector("#updateForm");
 const resetButton = document.querySelector("#resetButton");
 const shareLinkButton = document.querySelector("#shareLinkButton");
+const mapSection = document.querySelector(".map-section");
 const mapFrame = document.querySelector("#mapFrame");
 const mapContent = document.querySelector("#mapContent");
 const machineLayer = document.querySelector("#machineLayer");
@@ -341,6 +442,10 @@ const zoomRange = document.querySelector("#zoomRange");
 const zoomInButton = document.querySelector("#zoomInButton");
 const zoomOutButton = document.querySelector("#zoomOutButton");
 const resetViewButton = document.querySelector("#resetViewButton");
+const isoViewButton = document.querySelector("#isoViewButton");
+const mapRotateRange = document.querySelector("#mapRotateRange");
+const fullscreenMapButton = document.querySelector("#fullscreenMapButton");
+const toggleToolsButton = document.querySelector("#toggleToolsButton");
 const editModeSelect = document.querySelector("#editModeSelect");
 const addRoutePointButton = document.querySelector("#addRoutePointButton");
 const addPlotButton = document.querySelector("#addPlotButton");
@@ -348,6 +453,7 @@ const addPlotEditorButton = document.querySelector("#addPlotEditorButton");
 const resetMapEditButton = document.querySelector("#resetMapEditButton");
 const f2Boundary = document.querySelector("#f2Boundary");
 const truckRoute = document.querySelector("#truckRoute");
+const truckRouteSecondary = document.querySelector("#truckRouteSecondary");
 const inspectionLayer = document.querySelector("#inspectionLayer");
 const editorHandles = document.querySelector("#editorHandles");
 const sectionModal = document.querySelector("#sectionModal");
@@ -359,6 +465,8 @@ const staGridLayer = document.querySelector("#staGridLayer");
 const showStaGridInput = document.querySelector("#showStaGridInput");
 const showBoundaryInput = document.querySelector("#showBoundaryInput");
 const showStatusBadgeInput = document.querySelector("#showStatusBadgeInput");
+const routeCountSelect = document.querySelector("#routeCountSelect");
+const routeEditSelect = document.querySelector("#routeEditSelect");
 const plotSelect = document.querySelector("#plotSelect");
 const plotLabelInput = document.querySelector("#plotLabelInput");
 const plotLevelSelect = document.querySelector("#plotLevelSelect");
@@ -371,6 +479,20 @@ const reportDateInput = document.querySelector("#reportDateInput");
 const generateReportButton = document.querySelector("#generateReportButton");
 const saveImageButton = document.querySelector("#saveImageButton");
 const reportOutput = document.querySelector("#reportOutput");
+const loginButton = document.querySelector("#loginButton");
+const logoutButton = document.querySelector("#logoutButton");
+const loginDialog = document.querySelector("#loginDialog");
+const loginForm = document.querySelector("#loginForm");
+const loginUserInput = document.querySelector("#loginUserInput");
+const loginPasswordInput = document.querySelector("#loginPasswordInput");
+const loginErrorText = document.querySelector("#loginErrorText");
+const viewerButton = document.querySelector("#viewerButton");
+const visitorCountText = document.querySelector("#visitorCountText");
+const referenceSlots = document.querySelector("#referenceSlots");
+const machineStatusBoard = document.querySelector("#machineStatusBoard");
+const referenceDialog = document.querySelector("#referenceDialog");
+const referenceDialogImage = document.querySelector("#referenceDialogImage");
+const closeReferenceDialogButton = document.querySelector("#closeReferenceDialogButton");
 
 function loadState() {
   const shared = readSharedState();
@@ -412,7 +534,7 @@ function buildShareLink() {
 
 function normalizeState(saved) {
   const base = structuredClone(defaultState);
-  return {
+  const normalized = {
     ...base,
     ...saved,
     reportDate: saved.reportDate || base.reportDate,
@@ -421,6 +543,9 @@ function normalizeState(saved) {
     editMode: saved.editMode || base.editMode,
     boundaryPoints: saved.boundaryPoints || base.boundaryPoints,
     routePoints: saved.routePoints || base.routePoints,
+    routePointsSecondary: saved.routePointsSecondary || base.routePointsSecondary,
+    routeDisplayCount: saved.routeDisplayCount ?? base.routeDisplayCount,
+    activeRouteLine: saved.activeRouteLine || base.activeRouteLine,
     inspectionPlots: saved.inspectionPlots || base.inspectionPlots,
     selectedPlotId: saved.selectedPlotId || base.selectedPlotId,
     showStaGrid: saved.showStaGrid ?? base.showStaGrid,
@@ -429,11 +554,52 @@ function normalizeState(saved) {
     machineTypeVisibility: { ...base.machineTypeVisibility, ...(saved.machineTypeVisibility || {}) },
     gridFrame: saved.gridFrame || base.gridFrame,
     machineDetails: { ...base.machineDetails, ...(saved.machineDetails || {}) },
+    referenceImages: normalizeReferenceImages(saved.referenceImages || base.referenceImages),
     activeMachineId: saved.activeMachineId || base.activeMachineId,
     lastUpdated: saved.lastUpdated || base.lastUpdated,
     layers: saved.layers || base.layers,
     fleet: saved.fleet || base.fleet,
   };
+
+  if ((saved.schemaVersion || 1) < 2) {
+    Object.keys(normalized.machinePositions).forEach((machineId) => {
+      normalized.machinePositions[machineId] = { ...normalized.machinePositions[machineId], angle: 0 };
+    });
+  }
+
+  if ((saved.schemaVersion || 1) < 3) {
+    normalized.showStaGrid = false;
+  }
+
+  if ((saved.schemaVersion || 1) < 4) {
+    normalized.routePointsSecondary = structuredClone(defaultRoutePointsSecondary);
+    normalized.routeDisplayCount = 2;
+    Object.keys(normalized.machinePositions).forEach((machineId) => {
+      normalized.machinePositions[machineId] = { ...normalized.machinePositions[machineId], angle: 90 };
+    });
+    normalized.schemaVersion = 4;
+  }
+
+  if ((saved.schemaVersion || 1) < 5) {
+    normalized.referenceImages = structuredClone(defaultReferenceImages);
+    normalized.schemaVersion = 5;
+  }
+
+  return normalized;
+}
+
+function normalizeReferenceImages(images) {
+  const slots = Array.isArray(images) ? images.slice(0, 3) : [];
+  while (slots.length < 3) slots.push(null);
+  return slots.map((image, index) => {
+    if (!image?.src) return null;
+    return {
+      id: image.id || `ref-${index + 1}`,
+      label: image.label || `Reference ${index + 1}`,
+      src: image.src,
+      builtin: Boolean(image.builtin),
+    };
+  });
 }
 
 function saveState() {
@@ -461,6 +627,31 @@ function updateLastUpdated() {
   });
 }
 
+function isAdmin() {
+  return sessionStorage.getItem(adminSessionKey) === "1";
+}
+
+function applyAuthMode() {
+  const admin = isAdmin();
+  document.body.classList.toggle("viewer-mode", !admin);
+  document.body.classList.toggle("admin-mode", admin);
+  if (!admin) {
+    document.body.classList.add("tools-collapsed");
+  }
+  loginButton.hidden = admin;
+  logoutButton.hidden = !admin;
+  updateToolButtons();
+}
+
+function updateVisitorCount() {
+  if (!sessionStorage.getItem(visitorSessionKey)) {
+    const nextCount = Number(localStorage.getItem(visitorCountKey) || "0") + 1;
+    localStorage.setItem(visitorCountKey, String(nextCount));
+    sessionStorage.setItem(visitorSessionKey, "1");
+  }
+  visitorCountText.textContent = localStorage.getItem(visitorCountKey) || "1";
+}
+
 function t(key) {
   return dictionaries[state.language][key] || dictionaries.th[key] || key;
 }
@@ -472,6 +663,7 @@ function applyLanguage() {
   });
   shiftNoteInput.placeholder = t("notePlaceholder");
   languageSelect.value = state.language;
+  updateToolButtons();
 }
 
 function renderLayers() {
@@ -533,7 +725,7 @@ function renderMachineEditor() {
     card.innerHTML = `
       <div class="machine-card-head">
         <span>${machine.id.toUpperCase()} · ${t(machine.type)}</span>
-        <span>${details.status === "broken" ? "×" : "✓"}</span>
+        <span>${machineStatusMeta(details.status).symbol}</span>
       </div>
       <div class="machine-form-grid">
         <label>
@@ -551,8 +743,9 @@ function renderMachineEditor() {
         <label>
           <span>${t("status")}</span>
           <select data-machine-detail="${machine.id}" data-field="status">
-            <option value="normal" ${details.status !== "broken" ? "selected" : ""}>✓ ${t("normal")}</option>
+            <option value="normal" ${details.status === "normal" || !details.status ? "selected" : ""}>✓ ${t("onStatus")}</option>
             <option value="broken" ${details.status === "broken" ? "selected" : ""}>× ${t("broken")}</option>
+            <option value="standby" ${details.status === "standby" ? "selected" : ""}>Ⅱ ${t("standby")}</option>
           </select>
         </label>
         <label>
@@ -574,6 +767,103 @@ function renderMachineEditor() {
   });
 }
 
+function machineStatusMeta(status) {
+  if (status === "broken") return { value: "broken", label: t("stopBroken"), symbol: "×" };
+  if (status === "standby") return { value: "standby", label: t("standby"), symbol: "Ⅱ" };
+  return { value: "normal", label: t("onStatus"), symbol: "✓" };
+}
+
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[char]));
+}
+
+function renderMachineStatusBoard() {
+  const typeOrder = ["dozer", "grader", "roller", "excavator"];
+  machineStatusBoard.innerHTML = "";
+
+  typeOrder.forEach((type) => {
+    const group = document.createElement("section");
+    group.className = `machine-status-group status-${type}`;
+    const machines = machineDefaults.filter((machine) => machine.type === type);
+    const rows = machines
+      .map((machine) => {
+        const details = state.machineDetails[machine.id] || {};
+        const status = machineStatusMeta(details.status);
+        const shifts = details.shifts || { day: true, night: false };
+        const shiftOptions = type === "dozer"
+          ? `<div class="shift-options" aria-label="${machine.id.toUpperCase()} shift">
+              <label><input type="checkbox" data-machine-shift="${machine.id}" data-shift="day" ${shifts.day !== false ? "checked" : ""} ${isAdmin() ? "" : "disabled"}><span>${t("dayShift")}</span></label>
+              <label><input type="checkbox" data-machine-shift="${machine.id}" data-shift="night" ${shifts.night ? "checked" : ""} ${isAdmin() ? "" : "disabled"}><span>${t("nightShift")}</span></label>
+            </div>`
+          : "";
+        return `<div class="machine-status-row ${status.value}">
+          <div class="machine-status-id"><strong>${machine.id.toUpperCase()}</strong><span title="${escapeHtml(details.brand)}">${escapeHtml(details.brand) || "-"}</span></div>
+          <div class="machine-row-controls">
+            <div class="status-options" role="radiogroup" aria-label="${machine.id.toUpperCase()} ${t("status")}">
+              ${["normal", "broken", "standby"]
+                .map((value) => {
+                  const option = machineStatusMeta(value);
+                  return `<label class="status-option ${value}">
+                    <input type="radio" name="status-${machine.id}" value="${value}" data-machine-status="${machine.id}" ${
+                      status.value === value ? "checked" : ""
+                    } ${isAdmin() ? "" : "disabled"}>
+                    <span>${option.symbol} ${option.label}</span>
+                  </label>`;
+                })
+                .join("")}
+            </div>
+            ${shiftOptions}
+          </div>
+        </div>`;
+      })
+      .join("");
+
+    group.innerHTML = `<header>
+      <span>${t(type)}</span>
+      <span class="machine-type-icon ${type}" aria-hidden="true"></span>
+      <small>${machines.length}</small>
+    </header>
+    <div class="machine-status-list">${rows}</div>`;
+    machineStatusBoard.appendChild(group);
+  });
+}
+
+function renderReferenceImages() {
+  referenceSlots.innerHTML = "";
+  state.referenceImages = normalizeReferenceImages(state.referenceImages);
+
+  state.referenceImages.forEach((image, index) => {
+    const slot = document.createElement("article");
+    slot.className = `reference-slot ${image ? "" : "empty"}`;
+    const imageButton = image
+      ? `<button class="reference-thumb" type="button" data-reference-view="${index}" aria-label="${image.label}">
+          <img src="${image.src}" alt="${image.label}">
+        </button>`
+      : `<div class="reference-thumb placeholder"><span>${t("emptyImage")}</span></div>`;
+
+    slot.innerHTML = `
+      ${imageButton}
+      <div class="reference-meta">
+        <span>${image?.label || `Reference ${index + 1}`}</span>
+        <div class="reference-admin">
+          <label class="ghost-button reference-upload">
+            <span>${t("addImage")}</span>
+            <input type="file" accept="image/*" data-reference-upload="${index}">
+          </label>
+          <button class="ghost-button danger" type="button" data-reference-delete="${index}" ${image ? "" : "disabled"}>${t("deleteImage")}</button>
+        </div>
+      </div>
+    `;
+    referenceSlots.appendChild(slot);
+  });
+}
+
 function renderMachines() {
   machineLayer.innerHTML = "";
   machineLayer.classList.toggle("hide-status-badges", !state.showStatusBadge);
@@ -581,9 +871,10 @@ function renderMachines() {
     if (state.machineTypeVisibility[machine.type] === false) return;
     const position = state.machinePositions[machine.id] || machine;
     const details = state.machineDetails[machine.id] || {};
+    const status = machineStatusMeta(details.status);
     const marker = document.createElement("button");
     marker.type = "button";
-    marker.className = `machine ${machine.type} ${details.status === "broken" ? "broken" : ""} ${
+    marker.className = `machine ${machine.type} ${status.value} ${
       state.activeMachineId === machine.id ? "active-machine" : ""
     }`;
     marker.dataset.machineId = machine.id;
@@ -594,7 +885,7 @@ function renderMachines() {
     marker.setAttribute("aria-label", marker.dataset.kind);
     marker.innerHTML = `
       <span class="machine-visual"><span class="work-effect"></span></span>
-      <span class="status-badge ${details.status === "broken" ? "broken" : ""}">${details.status === "broken" ? "×" : "✓"}</span>
+      <span class="status-badge ${status.value}">${status.symbol}</span>
       <span class="machine-label">${machine.id.toUpperCase()} ${details.operator || ""}</span>
       <span class="rotate-handle" title="${t("rotate")}"></span>
     `;
@@ -603,11 +894,54 @@ function renderMachines() {
 }
 
 function applyMapView() {
-  const { zoom, panX, panY } = state.view;
+  const { zoom, panX, panY, isometric, rotation } = state.view;
   mapContent.style.setProperty("--zoom", zoom);
   mapContent.style.setProperty("--pan-x", `${panX}px`);
   mapContent.style.setProperty("--pan-y", `${panY}px`);
+  mapContent.style.setProperty("--map-rotate", `${rotation || 0}deg`);
+  mapFrame.classList.toggle("is-isometric", Boolean(isometric));
   zoomRange.value = zoom;
+  mapRotateRange.value = rotation || 0;
+  updateToolButtons();
+}
+
+function updateToolButtons() {
+  if (toggleToolsButton) {
+    const collapsed = document.body.classList.contains("tools-collapsed");
+    toggleToolsButton.textContent = collapsed ? t("tools") : t("hideTools");
+    toggleToolsButton.setAttribute("aria-pressed", String(!collapsed));
+    toggleToolsButton.hidden = !isAdmin();
+  }
+
+  if (fullscreenMapButton) {
+    const fullscreen = Boolean(document.fullscreenElement) || document.body.classList.contains("map-fullscreen");
+    fullscreenMapButton.textContent = fullscreen ? t("exitFullscreen") : t("fullscreenMap");
+    fullscreenMapButton.setAttribute("aria-pressed", String(fullscreen));
+  }
+
+  if (isoViewButton) {
+    isoViewButton.textContent = state.view.isometric ? t("flatView") : t("isoView");
+    isoViewButton.setAttribute("aria-pressed", String(Boolean(state.view.isometric)));
+  }
+}
+
+async function toggleMapFullscreen() {
+  if (document.fullscreenElement) {
+    await document.exitFullscreen();
+    return;
+  }
+
+  if (mapSection.requestFullscreen) {
+    await mapSection.requestFullscreen();
+    return;
+  }
+
+  document.body.classList.toggle("map-fullscreen");
+  updateToolButtons();
+  setTimeout(() => {
+    clampPan();
+    applyMapView();
+  }, 0);
 }
 
 function setZoom(nextZoom, originX = mapFrame.clientWidth / 2, originY = mapFrame.clientHeight / 2) {
@@ -660,6 +994,9 @@ function renderMapEditor() {
   f2Boundary.setAttribute("points", svgPoints(state.boundaryPoints));
   f2Boundary.style.display = state.showBoundary ? "" : "none";
   truckRoute.setAttribute("points", svgPoints(state.routePoints));
+  truckRouteSecondary.setAttribute("points", svgPoints(state.routePointsSecondary));
+  truckRoute.style.display = state.routeDisplayCount >= 1 ? "" : "none";
+  truckRouteSecondary.style.display = state.routeDisplayCount >= 2 ? "" : "none";
   renderStaGrid();
   renderInspectionPlots();
   renderPlotEditor();
@@ -668,6 +1005,8 @@ function renderMapEditor() {
   showStaGridInput.checked = state.showStaGrid;
   showBoundaryInput.checked = state.showBoundary;
   showStatusBadgeInput.checked = state.showStatusBadge;
+  routeCountSelect.value = String(state.routeDisplayCount);
+  routeEditSelect.value = String(state.activeRouteLine || 1);
 }
 
 function lerpPoint(a, b, t) {
@@ -761,9 +1100,14 @@ function renderInspectionPlots() {
     level.setAttribute("class", "plot-level-label");
     level.setAttribute("x", plot.x + 12);
     level.setAttribute("y", plot.y + 43);
-    level.textContent = plot.level || "2.0m";
+    level.textContent = formatElevationLabel(plot.level);
     inspectionLayer.appendChild(level);
   });
+}
+
+function formatElevationLabel(level) {
+  const value = String(level || "2.0m").replace(/\s*m$/i, "");
+  return `ELV. ${value} m`;
 }
 
 function renderPlotEditor() {
@@ -788,13 +1132,15 @@ function renderPlotEditor() {
 
 function renderEditorHandles() {
   editorHandles.innerHTML = "";
+  if (!isAdmin()) return;
   if (state.editMode === "boundary") {
     state.boundaryPoints.forEach((point, index) => {
       editorHandles.appendChild(makeHandle(point, "boundary", index));
     });
   }
   if (state.editMode === "route") {
-    state.routePoints.forEach((point, index) => {
+    const routePoints = Number(state.activeRouteLine) === 2 ? state.routePointsSecondary : state.routePoints;
+    routePoints.forEach((point, index) => {
       editorHandles.appendChild(makeHandle(point, "route", index));
     });
   }
@@ -822,8 +1168,7 @@ function makeHandle(point, type, index) {
   return handle;
 }
 
-function interpolateRoute(progress) {
-  const points = state.routePoints;
+function interpolateRoute(progress, points = state.routePoints) {
   if (points.length < 2) return { x: 50, y: 50, angle: 0 };
   const segments = [];
   let total = 0;
@@ -851,7 +1196,14 @@ function interpolateRoute(progress) {
 
 function animateTrucks(timestamp = 0) {
   document.querySelectorAll(".truck").forEach((truck, index) => {
-    const point = interpolateRoute(timestamp / 15000 + index * 0.5);
+    const routeCount = Number(state.routeDisplayCount) || 0;
+    if (!routeCount) {
+      truck.style.display = "none";
+      return;
+    }
+    truck.style.display = "";
+    const route = routeCount >= 2 && index % 2 === 1 ? state.routePointsSecondary : state.routePoints;
+    const point = interpolateRoute(timestamp / 15000 + index * 0.5, route);
     truck.style.left = `${point.x / 10}%`;
     truck.style.top = `${point.y / 7}%`;
     truck.style.transform = `translate(-50%, -50%) rotate(${point.angle}deg)`;
@@ -864,12 +1216,13 @@ function buildMachineReport() {
   const mapImageHref = document.querySelector(".map-content img")?.src || "assets/F2.jpg";
   const sandVolume = Number(state.truckTrips) * 30;
   const broken = machineDefaults.filter((machine) => state.machineDetails[machine.id]?.status === "broken");
-  const normal = machineDefaults.length - broken.length;
+  const standby = machineDefaults.filter((machine) => state.machineDetails[machine.id]?.status === "standby");
+  const normal = machineDefaults.length - broken.length - standby.length;
   const lines = [
     `F2 Compaction Daily Report`,
     `Date: ${date}`,
     `Sand truck trips: ${state.truckTrips} trips (${sandVolume.toLocaleString()} m3)`,
-    `Machine status: ${normal}/${machineDefaults.length} normal, ${broken.length} breakdown`,
+    `Machine status: ${normal}/${machineDefaults.length} on, ${standby.length} standby, ${broken.length} breakdown`,
     ``,
     `Machine details:`,
   ];
@@ -877,11 +1230,14 @@ function buildMachineReport() {
   machineDefaults.forEach((machine) => {
     const details = state.machineDetails[machine.id] || {};
     const position = state.machinePositions[machine.id] || {};
-    const status = details.status === "broken" ? "BREAKDOWN" : "NORMAL";
+    const status = details.status === "broken" ? "BREAKDOWN" : details.status === "standby" ? "STANDBY" : "ON";
+    const shifts = machine.type === "dozer" && details.shifts
+      ? ` | shifts: ${details.shifts.day ? "day" : "-"}/${details.shifts.night ? "night" : "-"}`
+      : "";
     lines.push(
       `- ${machine.id.toUpperCase()} ${t(machine.type)} | ${status} | operator: ${details.operator || "-"} | brand: ${
         details.brand || "-"
-      } | work: ${details.workTime || "-"} | down: ${details.downTime || "-"} | angle: ${position.angle || 0}°`
+      } | work: ${details.workTime || "-"} | down: ${details.downTime || "-"}${shifts} | angle: ${position.angle || 0}°`
     );
   });
 
@@ -914,15 +1270,17 @@ function buildMapSnapshotSvg() {
   const escape = (value) =>
     String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const route = svgPoints(state.routePoints);
+  const routeSecondary = svgPoints(state.routePointsSecondary);
   const boundary = svgPoints(state.boundaryPoints);
   const machines = machineDefaults
     .map((machine) => {
       const pos = state.machinePositions[machine.id] || machine;
       const detail = state.machineDetails[machine.id] || {};
-      const color = detail.status === "broken" ? "#d81f1f" : "#1f9d55";
+      const color = detail.status === "broken" ? "#d81f1f" : detail.status === "standby" ? "#d69214" : "#1f9d55";
+      const symbol = detail.status === "broken" ? "×" : detail.status === "standby" ? "Ⅱ" : "✓";
       return `<g transform="translate(${pos.x * 10} ${pos.y * 7}) rotate(${pos.angle || 0})">
         <rect x="-13" y="-8" width="26" height="16" rx="4" fill="${machine.type === "dozer" ? "#f08f24" : machine.type === "roller" ? "#6c757d" : machine.type === "grader" ? "#2f7fc1" : "#f4ba24"}" stroke="#fff" stroke-width="2"/>
-        ${state.showStatusBadge ? `<circle cx="0" cy="-17" r="9" fill="${color}" stroke="#fff" stroke-width="2"/><text x="0" y="-13" text-anchor="middle" font-size="11" font-weight="900" fill="#fff">${detail.status === "broken" ? "×" : "✓"}</text>` : ""}
+        ${state.showStatusBadge ? `<circle cx="0" cy="-17" r="9" fill="${color}" stroke="#fff" stroke-width="2"/><text x="0" y="-13" text-anchor="middle" font-size="11" font-weight="900" fill="#fff">${symbol}</text>` : ""}
         <text x="0" y="24" text-anchor="middle" font-size="10" font-weight="800" fill="#18201d" stroke="#fff" stroke-width="3" paint-order="stroke">${machine.id.toUpperCase()}</text>
       </g>`;
     })
@@ -930,7 +1288,7 @@ function buildMapSnapshotSvg() {
   const plots = state.inspectionPlots
     .map(
       (plot) =>
-        `<g><rect x="${plot.x}" y="${plot.y}" width="${plot.w}" height="${plot.h}" fill="${escape(plot.color || "#1577b8")}" fill-opacity=".22" stroke="${escape(plot.color || "#1577b8")}" stroke-width="3" stroke-dasharray="7 5"/><text x="${plot.x + 10}" y="${plot.y + 22}" font-size="16" font-weight="900" fill="#fff" stroke="#18201d" stroke-width="3" paint-order="stroke">${escape(plot.label || plot.id)}</text><text x="${plot.x + 10}" y="${plot.y + 41}" font-size="12" font-weight="900" fill="#d81f1f" stroke="#fff" stroke-width="3" paint-order="stroke">${escape(plot.level || "")}</text></g>`
+        `<g><rect x="${plot.x}" y="${plot.y}" width="${plot.w}" height="${plot.h}" fill="${escape(plot.color || "#1577b8")}" fill-opacity=".22" stroke="${escape(plot.color || "#1577b8")}" stroke-width="3" stroke-dasharray="7 5"/><text x="${plot.x + 10}" y="${plot.y + 22}" font-size="16" font-weight="900" fill="#fff" stroke="#18201d" stroke-width="3" paint-order="stroke">${escape(plot.label || plot.id)}</text><text x="${plot.x + 10}" y="${plot.y + 41}" font-size="12" font-weight="900" fill="#ffd166" stroke="#18201d" stroke-width="3" paint-order="stroke">${escape(formatElevationLabel(plot.level))}</text></g>`
     )
     .join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1000 700">
@@ -938,7 +1296,8 @@ function buildMapSnapshotSvg() {
     <rect width="1000" height="700" fill="rgba(255,255,255,.08)"/>
     <text x="24" y="36" font-size="26" font-weight="900" fill="#18201d">F2 Daily Snapshot ${escape(date)}</text>
     ${state.showBoundary ? `<polygon points="${boundary}" fill="rgba(34,197,94,.10)" stroke="#fff" stroke-width="5" stroke-dasharray="12 8"/>` : ""}
-    <polyline points="${route}" fill="none" stroke="#b93422" stroke-width="5" stroke-dasharray="10 10"/>
+    ${state.routeDisplayCount >= 1 ? `<polyline points="${route}" fill="none" stroke="#b93422" stroke-width="5" stroke-dasharray="10 10"/>` : ""}
+    ${state.routeDisplayCount >= 2 ? `<polyline points="${routeSecondary}" fill="none" stroke="rgba(185,52,34,.68)" stroke-width="4" stroke-dasharray="7 9"/>` : ""}
     ${plots}
     ${machines}
   </svg>`;
@@ -959,7 +1318,7 @@ function updateMetrics() {
     state.layers.reduce((sum, layer) => sum + Number(layer.progress), 0) / state.layers.length
   );
   const totalCount = machineDefaults.length;
-  const activeCount = machineDefaults.filter((machine) => state.machineDetails[machine.id]?.status !== "broken").length;
+  const activeCount = machineDefaults.filter((machine) => !["broken", "standby"].includes(state.machineDetails[machine.id]?.status)).length;
   const totalHours = state.fleet.reduce((sum, item) => sum + Number(item.hours), 0);
   const sandVolume = Number(state.truckTrips) * 30;
 
@@ -971,6 +1330,8 @@ function updateMetrics() {
 }
 
 function render() {
+  updateVisitorCount();
+  applyAuthMode();
   applyLanguage();
   reportDateInput.value = state.reportDate || new Date().toISOString().slice(0, 10);
   truckTripsInput.value = state.truckTrips;
@@ -978,8 +1339,10 @@ function render() {
   renderLayers();
   renderFleet();
   renderMachineEditor();
+  renderMachineStatusBoard();
   renderMachines();
   renderMapEditor();
+  renderReferenceImages();
   updateZoneOpacity();
   updateMetrics();
   applyMapView();
@@ -1066,8 +1429,56 @@ zoomOutButton.addEventListener("click", () => {
 });
 
 resetViewButton.addEventListener("click", () => {
-  state.view = { zoom: 1, panX: 0, panY: 0 };
+  state.view = { zoom: 1, panX: 0, panY: 0, isometric: false, rotation: 0 };
   saveState();
+  applyMapView();
+});
+
+isoViewButton.addEventListener("click", () => {
+  state.view.isometric = !state.view.isometric;
+  saveState();
+  applyMapView();
+});
+
+mapRotateRange.addEventListener("input", (event) => {
+  state.view.rotation = Number(event.target.value) || 0;
+  applyMapView();
+});
+
+mapRotateRange.addEventListener("change", () => {
+  saveState();
+});
+
+fullscreenMapButton.addEventListener("click", () => {
+  toggleMapFullscreen().catch(() => {
+    document.body.classList.toggle("map-fullscreen");
+    updateToolButtons();
+  });
+});
+
+toggleToolsButton.addEventListener("click", () => {
+  if (!isAdmin()) {
+    loginDialog.showModal();
+    return;
+  }
+  document.body.classList.toggle("tools-collapsed");
+  updateToolButtons();
+  setTimeout(() => {
+    clampPan();
+    applyMapView();
+  }, 220);
+});
+
+document.addEventListener("fullscreenchange", () => {
+  updateToolButtons();
+  setTimeout(() => {
+    clampPan();
+    applyMapView();
+  }, 0);
+});
+
+window.addEventListener("resize", () => {
+  clampPan();
   applyMapView();
 });
 
@@ -1078,9 +1489,29 @@ editModeSelect.addEventListener("change", (event) => {
 });
 
 addRoutePointButton.addEventListener("click", () => {
-  const last = state.routePoints[state.routePoints.length - 1] || { x: 500, y: 350 };
-  state.routePoints.push({ x: Math.min(960, last.x + 46), y: Math.max(40, last.y - 28) });
+  const points = Number(state.activeRouteLine) === 2 ? state.routePointsSecondary : state.routePoints;
+  const last = points[points.length - 1] || { x: 500, y: 350 };
+  points.push({ x: Math.min(960, last.x + 46), y: Math.max(40, last.y - 28) });
+  state.routeDisplayCount = Math.max(1, Number(state.routeDisplayCount) || 1);
   state.editMode = "route";
+  saveState();
+  renderMapEditor();
+});
+
+routeCountSelect.addEventListener("change", (event) => {
+  state.routeDisplayCount = Number(event.target.value);
+  saveState();
+  renderMapEditor();
+});
+
+routeEditSelect.addEventListener("change", (event) => {
+  state.activeRouteLine = Number(event.target.value);
+  state.editMode = "route";
+  if (state.activeRouteLine === 2) {
+    state.routeDisplayCount = 2;
+  } else if (state.routeDisplayCount === 0) {
+    state.routeDisplayCount = 1;
+  }
   saveState();
   renderMapEditor();
 });
@@ -1115,6 +1546,9 @@ function addInspectionPlot() {
 resetMapEditButton.addEventListener("click", () => {
   state.boundaryPoints = structuredClone(defaultBoundaryPoints);
   state.routePoints = structuredClone(defaultRoutePoints);
+  state.routePointsSecondary = structuredClone(defaultRoutePointsSecondary);
+  state.routeDisplayCount = 2;
+  state.activeRouteLine = 2;
   state.inspectionPlots = structuredClone(defaultInspectionPlots);
   state.gridFrame = structuredClone(defaultGridFrame);
   saveState();
@@ -1149,6 +1583,30 @@ machineTypeToggles.forEach((toggle) => {
   });
 });
 
+machineStatusBoard.addEventListener("change", (event) => {
+  const statusInput = event.target.closest("[data-machine-status]");
+  const shiftInput = event.target.closest("[data-machine-shift]");
+  if ((!statusInput && !shiftInput) || !isAdmin()) return;
+  const machineId = statusInput?.dataset.machineStatus || shiftInput.dataset.machineShift;
+  const details = state.machineDetails[machineId] || {};
+  state.machineDetails[machineId] = statusInput
+    ? { ...details, status: statusInput.value }
+    : {
+        ...details,
+        shifts: {
+          ...(details.shifts || { day: true, night: false }),
+          [shiftInput.dataset.shift]: shiftInput.checked,
+        },
+      };
+  saveState();
+  renderMachineStatusBoard();
+  if (statusInput) {
+    renderMachineEditor();
+    renderMachines();
+    updateMetrics();
+  }
+});
+
 shareLinkButton.addEventListener("click", async () => {
   const link = buildShareLink();
   try {
@@ -1162,10 +1620,52 @@ shareLinkButton.addEventListener("click", async () => {
   }
 });
 
+loginButton.addEventListener("click", () => {
+  loginErrorText.classList.remove("show");
+  loginUserInput.value = "";
+  loginPasswordInput.value = "";
+  loginDialog.showModal();
+  loginUserInput.focus();
+});
+
+logoutButton.addEventListener("click", () => {
+  sessionStorage.removeItem(adminSessionKey);
+  applyAuthMode();
+  renderMapEditor();
+  renderMachineStatusBoard();
+});
+
+viewerButton.addEventListener("click", () => {
+  loginDialog.close();
+});
+
+loginForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (loginUserInput.value.trim() === "admin" && loginPasswordInput.value === "1234") {
+    sessionStorage.setItem(adminSessionKey, "1");
+    loginErrorText.classList.remove("show");
+    loginDialog.close();
+    document.body.classList.remove("tools-collapsed");
+    applyAuthMode();
+    renderMapEditor();
+    renderMachineStatusBoard();
+    return;
+  }
+  loginErrorText.classList.add("show");
+});
+
 plotSelect.addEventListener("change", (event) => {
   state.selectedPlotId = event.target.value;
   saveState();
   renderPlotEditor();
+});
+
+plotLevelSelect.addEventListener("change", () => {
+  const plot = state.inspectionPlots.find((item) => item.id === state.selectedPlotId);
+  if (!plot) return;
+  plot.level = plotLevelSelect.value;
+  saveState();
+  renderInspectionPlots();
 });
 
 savePlotButton.addEventListener("click", () => {
@@ -1198,6 +1698,7 @@ function handleMachineEditorChange(event) {
       [field]: detailInput.value,
     };
     saveState();
+    if (["status", "brand"].includes(field)) renderMachineStatusBoard();
     renderMachines();
     updateMetrics();
   }
@@ -1226,6 +1727,46 @@ machineEditor.addEventListener("change", (event) => {
     saveState();
     renderMachineEditor();
   });
+});
+
+referenceSlots.addEventListener("click", (event) => {
+  const viewButton = event.target.closest("[data-reference-view]");
+  const deleteButton = event.target.closest("[data-reference-delete]");
+
+  if (viewButton) {
+    const image = state.referenceImages[Number(viewButton.dataset.referenceView)];
+    if (!image?.src) return;
+    referenceDialogImage.src = image.src;
+    referenceDialogImage.alt = image.label || t("referenceImages");
+    referenceDialog.showModal();
+    return;
+  }
+
+  if (deleteButton) {
+    if (!isAdmin()) return;
+    state.referenceImages[Number(deleteButton.dataset.referenceDelete)] = null;
+    saveState();
+    renderReferenceImages();
+  }
+});
+
+referenceSlots.addEventListener("change", (event) => {
+  const fileInput = event.target.closest("[data-reference-upload]");
+  if (!fileInput || !isAdmin() || !fileInput.files?.[0]) return;
+  const index = Number(fileInput.dataset.referenceUpload);
+  resizeImageFile(fileInput.files[0], 1280, 900).then((dataUrl) => {
+    state.referenceImages[index] = {
+      id: `ref-${index + 1}`,
+      label: `Reference ${index + 1}`,
+      src: dataUrl,
+    };
+    saveState();
+    renderReferenceImages();
+  });
+});
+
+closeReferenceDialogButton.addEventListener("click", () => {
+  referenceDialog.close();
 });
 
 function resizeImageFile(file, maxWidth, maxHeight) {
@@ -1305,6 +1846,7 @@ mapFrame.addEventListener("pointercancel", () => {
 });
 
 machineLayer.addEventListener("pointerdown", (event) => {
+  if (!isAdmin()) return;
   if (state.editMode !== "machine") return;
   const marker = event.target.closest(".machine");
   if (!marker) return;
@@ -1365,6 +1907,7 @@ machineLayer.addEventListener("pointerdown", (event) => {
 });
 
 editorHandles.addEventListener("pointerdown", (event) => {
+  if (!isAdmin()) return;
   const handle = event.target.closest(".editor-handle");
   if (!handle) return;
   event.stopPropagation();
@@ -1379,7 +1922,8 @@ editorHandles.addEventListener("pointerdown", (event) => {
     if (type === "boundary") {
       state.boundaryPoints[index] = point;
     } else if (type === "route") {
-      state.routePoints[index] = point;
+      const routePoints = Number(state.activeRouteLine) === 2 ? state.routePointsSecondary : state.routePoints;
+      routePoints[index] = point;
     } else if (type === "grid") {
       state.gridFrame[index] = point;
     } else if (type === "plot-move" && plotStart) {

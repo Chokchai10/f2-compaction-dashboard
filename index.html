@@ -6,7 +6,7 @@
     <title>F2 Compaction Control</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body class="tools-collapsed viewer-mode">
     <header class="topbar">
       <div>
         <p class="eyebrow" data-i18n="eyebrow">Onshore Compaction Control</p>
@@ -23,6 +23,9 @@
         </label>
         <button class="ghost-button" id="resetButton" type="button" data-i18n="reset">รีเซ็ตข้อมูล</button>
         <button class="ghost-button" id="shareLinkButton" type="button" data-i18n="shareLink">แชร์ลิงก์สถานะล่าสุด</button>
+        <button class="ghost-button" id="loginButton" type="button" data-i18n="adminLogin">ล็อกอินแอดมิน</button>
+        <button class="ghost-button" id="logoutButton" type="button" data-i18n="logout">ออกจากระบบ</button>
+        <span class="visitor-chip"><span data-i18n="visitors">ผู้เข้าชม</span>: <strong id="visitorCountText">0</strong></span>
         <span class="last-updated"><span data-i18n="lastUpdated">แก้ไขล่าสุด</span>: <strong id="lastUpdatedText">-</strong></span>
       </div>
     </header>
@@ -39,6 +42,10 @@
             <input id="zoomRange" type="range" min="1" max="3.5" step="0.1" value="1" aria-label="Map zoom" />
             <button class="icon-button" id="zoomInButton" type="button" aria-label="Zoom in">+</button>
             <button class="ghost-button" id="resetViewButton" type="button" data-i18n="resetView">รีเซ็ตมุมมอง</button>
+            <button class="ghost-button" id="isoViewButton" type="button" data-i18n="isoView">3D</button>
+            <input class="rotate-range" id="mapRotateRange" type="range" min="0" max="360" step="5" value="0" aria-label="Rotate simulated view" />
+            <button class="ghost-button" id="fullscreenMapButton" type="button" data-i18n="fullscreenMap">เต็มจอ</button>
+            <button class="ghost-button" id="toggleToolsButton" type="button" data-i18n="tools">เครื่องมือ</button>
             <div class="status-chip">
               <span class="live-dot"></span>
               <span data-i18n="adminMode">Admin Drag Mode</span>
@@ -48,7 +55,7 @@
 
         <div class="map-frame" id="mapFrame">
           <div class="map-content" id="mapContent">
-            <img src="assets/F2.jpg" alt="F2 reclamation and compaction site map" />
+            <img class="base-map-image" src="assets/F2.jpg" alt="F2 reclamation and compaction site map" />
             <svg class="work-overlay" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
               <defs>
                 <linearGradient id="zoneGradient" x1="0" x2="1" y1="0" y2="1">
@@ -65,19 +72,29 @@
               <polygon class="zone zone-b" points="430,203 890,204 886,328 428,333" />
               <polygon class="zone zone-c" points="119,364 426,344 888,340 876,466 527,507 118,495" />
               <polygon class="zone zone-d" points="122,507 529,518 865,479 832,535 636,587 250,588 123,530" />
-              <polyline class="truck-route" id="truckRoute" points="" marker-end="url(#routeArrow)" />
+              <polyline class="truck-route route-primary" id="truckRoute" points="" marker-end="url(#routeArrow)" />
+              <polyline class="truck-route route-secondary" id="truckRouteSecondary" points="" marker-end="url(#routeArrow)" />
               <g id="inspectionLayer"></g>
               <g id="editorHandles"></g>
             </svg>
             <div id="machineLayer"></div>
             <div class="truck truck-a"></div>
             <div class="truck truck-b"></div>
-            <button class="map-label label-zone-a" type="button" data-elevation="1.6m">1.6m</button>
-            <button class="map-label label-zone-b" type="button" data-elevation="2.0m">2.0m</button>
-            <button class="map-label label-zone-c" type="button" data-elevation="2.4m">2.4m</button>
-            <button class="map-label label-zone-d" type="button" data-elevation="3.0m">3.0m</button>
           </div>
           <div class="drag-hint" data-i18n="dragHint">ใช้ล้อเมาส์เพื่อซูม, ลากพื้นแผนที่เพื่อเลื่อน, ลากเครื่องจักรเพื่ออัปเดตพิกัด</div>
+        </div>
+        <section class="machine-status-panel" aria-labelledby="machineStatusTitle">
+          <div class="machine-status-head">
+            <strong id="machineStatusTitle" data-i18n="machineWorkingStatus">สถานะการทำงานของเครื่องจักร</strong>
+            <span data-i18n="statusSelectHint">เลือกสถานะรายคัน</span>
+          </div>
+          <div class="machine-status-groups" id="machineStatusBoard"></div>
+        </section>
+        <div class="reference-panel" aria-label="Reference images">
+          <div class="reference-head">
+            <strong data-i18n="referenceImages">รูปอ้างอิง</strong>
+          </div>
+          <div class="reference-slots" id="referenceSlots"></div>
         </div>
       </section>
 
@@ -124,6 +141,21 @@
               <button class="ghost-button" id="addRoutePointButton" type="button" data-i18n="addRoutePoint">เพิ่มจุดเส้นทาง</button>
               <button class="ghost-button" id="addPlotButton" type="button" data-i18n="addPlot">เพิ่มแปลง</button>
             </div>
+            <label>
+              <span data-i18n="routeLines">จำนวนเส้นทางรถบรรทุกแดง</span>
+              <select id="routeCountSelect">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="editRouteLine">แก้ไขเส้นทาง</span>
+              <select id="routeEditSelect">
+                <option value="1">เส้นที่ 1</option>
+                <option value="2">เส้นที่ 2</option>
+              </select>
+            </label>
             <button class="ghost-button" id="resetMapEditButton" type="button" data-i18n="resetMapEdit">รีเซ็ตขอบ/เส้น/แปลง</button>
             <div class="machine-type-filter">
               <span data-i18n="machineVisibility">แสดงเครื่องจักร</span>
@@ -245,6 +277,33 @@
         <div class="side-machine side-roller"></div>
       </div>
       <p id="sectionCaption"></p>
+    </dialog>
+
+    <dialog class="login-dialog" id="loginDialog">
+      <form class="login-card" id="loginForm" method="dialog">
+        <h2 data-i18n="adminLogin">ล็อกอินแอดมิน</h2>
+        <label>
+          <span>User</span>
+          <input id="loginUserInput" type="text" autocomplete="username" />
+        </label>
+        <label>
+          <span>Password</span>
+          <input id="loginPasswordInput" type="password" autocomplete="current-password" />
+        </label>
+        <p class="login-error" id="loginErrorText" data-i18n="loginError">User หรือ Password ไม่ถูกต้อง</p>
+        <div class="tool-row">
+          <button class="primary-button" type="submit" data-i18n="login">เข้าสู่ระบบ</button>
+          <button class="ghost-button" id="viewerButton" type="button" data-i18n="viewerMode">ดูแบบผู้ชม</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="reference-dialog" id="referenceDialog">
+      <div class="modal-head">
+        <h2 id="referenceDialogTitle" data-i18n="referenceImages">รูปอ้างอิง</h2>
+        <button class="icon-button" id="closeReferenceDialogButton" type="button" aria-label="Close">×</button>
+      </div>
+      <img id="referenceDialogImage" alt="Reference image preview" />
     </dialog>
 
     <script src="app.js"></script>
