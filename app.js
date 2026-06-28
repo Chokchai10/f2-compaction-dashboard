@@ -425,6 +425,15 @@ const adminSessionKey = "f2-compaction-admin-session";
 const visitorCountKey = "f2-compaction-visitor-count";
 const visitorSessionKey = "f2-compaction-visitor-session";
 let state = loadState();
+const realtimeConfig = window.F2_REALTIME_CONFIG || {};
+let supabaseClient = null;
+let realtimeChannel = null;
+let remoteSaveTimer = null;
+let applyingRemoteState = false;
+let realtimeInitialized = false;
+let adminSyncPassword = "";
+
+if (realtimeConfig.enabled) sessionStorage.removeItem(adminSessionKey);
 
 const languageSelect = document.querySelector("#languageSelect");
 const layerList = document.querySelector("#layerList");
@@ -488,6 +497,7 @@ const loginPasswordInput = document.querySelector("#loginPasswordInput");
 const loginErrorText = document.querySelector("#loginErrorText");
 const viewerButton = document.querySelector("#viewerButton");
 const visitorCountText = document.querySelector("#visitorCountText");
+const realtimeStatus = document.querySelector("#realtimeStatus");
 const referenceSlots = document.querySelector("#referenceSlots");
 const machineStatusBoard = document.querySelector("#machineStatusBoard");
 const referenceDialog = document.querySelector("#referenceDialog");
@@ -602,10 +612,119 @@ function normalizeReferenceImages(images) {
   });
 }
 
+function isRealtimeConfigured() {
+  return Boolean(realtimeConfig.enabled && realtimeConfig.url && realtimeConfig.publishableKey);
+}
+
+function setRealtimeStatus(status) {
+  if (!realtimeStatus) return;
+  const labels = {
+    th: { local: "Local", connecting: "กำลังเชื่อมต่อ", live: "Realtime", saving: "กำลังบันทึก", error: "Sync error" },
+    en: { local: "Local", connecting: "Connecting", live: "Realtime", saving: "Saving", error: "Sync error" },
+    zh: { local: "本机", connecting: "连接中", live: "实时", saving: "保存中", error: "同步错误" },
+  };
+  realtimeStatus.className = `sync-chip ${status}`;
+  realtimeStatus.textContent = labels[state.language]?.[status] || labels.en[status] || status;
+}
+
+function buildRemoteState() {
+  const remoteState = structuredClone(state);
+  Object.values(remoteState.machineDetails || {}).forEach((details) => delete details.photo);
+  remoteState.referenceImages = normalizeReferenceImages(remoteState.referenceImages).map((image) => {
+    if (!image || image.src.startsWith("data:")) return null;
+    return image;
+  });
+  return remoteState;
+}
+
+function preserveLocalMedia(remotePayload) {
+  const nextState = normalizeState(remotePayload || {});
+  Object.keys(nextState.machineDetails).forEach((machineId) => {
+    const localPhoto = state.machineDetails[machineId]?.photo;
+    if (localPhoto) nextState.machineDetails[machineId].photo = localPhoto;
+  });
+  const localReferences = normalizeReferenceImages(state.referenceImages);
+  nextState.referenceImages = normalizeReferenceImages(nextState.referenceImages).map((image, index) => {
+    if (image) return image;
+    return localReferences[index]?.src?.startsWith("data:") ? localReferences[index] : null;
+  });
+  return nextState;
+}
+
+async function pushRemoteState() {
+  if (!supabaseClient || !isAdmin() || !adminSyncPassword || applyingRemoteState) return;
+  setRealtimeStatus("saving");
+  const { error } = await supabaseClient.rpc("save_dashboard_state", {
+    admin_password: adminSyncPassword,
+    state_payload: buildRemoteState(),
+  });
+  setRealtimeStatus(error ? "error" : "live");
+}
+
+function scheduleRemoteSave() {
+  if (!supabaseClient || !isAdmin() || applyingRemoteState) return;
+  window.clearTimeout(remoteSaveTimer);
+  remoteSaveTimer = window.setTimeout(pushRemoteState, 500);
+}
+
+function applyRemotePayload(payload) {
+  if (!payload?.machineDetails || !payload?.inspectionPlots || !payload?.layers) return;
+  const remoteDate = new Date(payload.lastUpdated || 0).getTime();
+  const localDate = new Date(state.lastUpdated || 0).getTime();
+  if (remoteDate && remoteDate < localDate && isAdmin()) return;
+  applyingRemoteState = true;
+  state = preserveLocalMedia(payload);
+  localStorage.setItem(storageKey, JSON.stringify(state));
+  render();
+  applyingRemoteState = false;
+  setRealtimeStatus("live");
+}
+
+async function initializeRealtime() {
+  if (realtimeInitialized || !isRealtimeConfigured()) {
+    if (!isRealtimeConfigured()) setRealtimeStatus("local");
+    return;
+  }
+  realtimeInitialized = true;
+  setRealtimeStatus("connecting");
+  try {
+    const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
+    supabaseClient = createClient(realtimeConfig.url, realtimeConfig.publishableKey, {
+      auth: { persistSession: true, autoRefreshToken: true },
+    });
+
+    const { data, error } = await supabaseClient
+      .from(realtimeConfig.table || "dashboard_state")
+      .select("payload,updated_at")
+      .eq("id", realtimeConfig.rowId || "f2-main")
+      .maybeSingle();
+    if (error) throw error;
+    if (data?.payload) applyRemotePayload(data.payload);
+
+    realtimeChannel = supabaseClient
+      .channel("f2-dashboard-state")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: realtimeConfig.table || "dashboard_state",
+          filter: `id=eq.${realtimeConfig.rowId || "f2-main"}`,
+        },
+        (change) => applyRemotePayload(change.new?.payload)
+      )
+      .subscribe((status) => setRealtimeStatus(status === "SUBSCRIBED" ? "live" : "connecting"));
+  } catch (error) {
+    console.error("Realtime initialization failed", error);
+    setRealtimeStatus("error");
+  }
+}
+
 function saveState() {
   state.lastUpdated = new Date().toISOString();
   localStorage.setItem(storageKey, JSON.stringify(state));
   updateLastUpdated();
+  scheduleRemoteSave();
 }
 
 function touchState() {
@@ -843,7 +962,7 @@ function renderReferenceImages() {
     slot.className = `reference-slot ${image ? "" : "empty"}`;
     const imageButton = image
       ? `<button class="reference-thumb" type="button" data-reference-view="${index}" aria-label="${image.label}">
-          <img src="${image.src}" alt="${image.label}">
+          <img src="${image.src}" alt="${image.label}" loading="lazy" decoding="async">
         </button>`
       : `<div class="reference-thumb placeholder"><span>${t("emptyImage")}</span></div>`;
 
@@ -1628,7 +1747,8 @@ loginButton.addEventListener("click", () => {
   loginUserInput.focus();
 });
 
-logoutButton.addEventListener("click", () => {
+logoutButton.addEventListener("click", async () => {
+  adminSyncPassword = "";
   sessionStorage.removeItem(adminSessionKey);
   applyAuthMode();
   renderMapEditor();
@@ -1639,9 +1759,14 @@ viewerButton.addEventListener("click", () => {
   loginDialog.close();
 });
 
-loginForm.addEventListener("submit", (event) => {
+loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (loginUserInput.value.trim() === "admin" && loginPasswordInput.value === "1234") {
+  let authenticated = false;
+  authenticated = loginUserInput.value.trim() === "admin" && loginPasswordInput.value === "1234";
+
+  if (authenticated) {
+    adminSyncPassword = loginPasswordInput.value;
+    if (isRealtimeConfigured()) await initializeRealtime();
     sessionStorage.setItem(adminSessionKey, "1");
     loginErrorText.classList.remove("show");
     loginDialog.close();
@@ -1649,6 +1774,7 @@ loginForm.addEventListener("submit", (event) => {
     applyAuthMode();
     renderMapEditor();
     renderMachineStatusBoard();
+    await pushRemoteState();
     return;
   }
   loginErrorText.classList.add("show");
@@ -1980,4 +2106,8 @@ resetButton.addEventListener("click", () => {
 });
 
 render();
+initializeRealtime();
+if ("serviceWorker" in navigator && window.location.protocol === "https:") {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+}
 requestAnimationFrame(animateTrucks);

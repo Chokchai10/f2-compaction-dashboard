@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>F2 Compaction Control</title>
+    <link rel="preload" as="image" href="assets/F2.jpg" fetchpriority="high" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="tools-collapsed viewer-mode">
@@ -26,6 +27,7 @@
         <button class="ghost-button" id="loginButton" type="button" data-i18n="adminLogin">ล็อกอินแอดมิน</button>
         <button class="ghost-button" id="logoutButton" type="button" data-i18n="logout">ออกจากระบบ</button>
         <span class="visitor-chip"><span data-i18n="visitors">ผู้เข้าชม</span>: <strong id="visitorCountText">0</strong></span>
+        <span class="sync-chip local" id="realtimeStatus">Local</span>
         <span class="last-updated"><span data-i18n="lastUpdated">แก้ไขล่าสุด</span>: <strong id="lastUpdatedText">-</strong></span>
       </div>
     </header>
@@ -55,7 +57,7 @@
 
         <div class="map-frame" id="mapFrame">
           <div class="map-content" id="mapContent">
-            <img class="base-map-image" src="assets/F2.jpg" alt="F2 reclamation and compaction site map" />
+            <img class="base-map-image" src="assets/F2.jpg" alt="F2 reclamation and compaction site map" fetchpriority="high" decoding="async" />
             <svg class="work-overlay" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
               <defs>
                 <linearGradient id="zoneGradient" x1="0" x2="1" y1="0" y2="1">
@@ -306,6 +308,7 @@
       <img id="referenceDialogImage" alt="Reference image preview" />
     </dialog>
 
+    <script src="realtime-config.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

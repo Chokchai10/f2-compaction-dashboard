@@ -109,6 +109,36 @@ h2 {
   white-space: nowrap;
 }
 
+.sync-chip {
+  min-height: 28px;
+  border: 1px solid #cfe0d7;
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: #f5faf7;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.sync-chip.live {
+  border-color: #9ed8b7;
+  background: #e8f7ee;
+  color: #13733d;
+}
+
+.sync-chip.connecting {
+  border-color: #efd18c;
+  background: #fff7df;
+  color: #8a5b06;
+}
+
+.sync-chip.error {
+  border-color: #efb5ae;
+  background: #fff0ee;
+  color: #a91d1d;
+}
+
 .viewer-mode #resetButton,
 .viewer-mode .status-chip {
   display: none;
@@ -771,6 +801,8 @@ select {
   padding: 10px;
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 10px 24px rgba(25, 37, 31, 0.08);
+  content-visibility: auto;
+  contain-intrinsic-size: 320px;
 }
 
 .machine-status-panel {
@@ -781,6 +813,8 @@ select {
   padding: 10px;
   background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 10px 24px rgba(25, 37, 31, 0.08);
+  content-visibility: auto;
+  contain-intrinsic-size: 760px;
 }
 
 .machine-status-head,
@@ -853,9 +887,9 @@ select {
 }
 
 .machine-type-icon.dozer { background-image: url("assets/dozer-side-real.png"); }
-.machine-type-icon.grader { background-image: url("assets/grader-status.png"); }
+.machine-type-icon.grader { background-image: url("assets/grader-status.webp"); }
 .machine-type-icon.roller { background-image: url("assets/roller-status.webp"); }
-.machine-type-icon.excavator { background-image: url("assets/excavator-status.webp"); }
+.machine-type-icon.excavator { background-image: url("assets/excavator-status-optimized.webp"); }
 
 .machine-status-list {
   display: grid;
