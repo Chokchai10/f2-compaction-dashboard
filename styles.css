@@ -1,5 +1,6 @@
 :root {
   color-scheme: light;
+  --map-ratio: 2708 / 1212;
   --bg: #eef2f0;
   --surface: #ffffff;
   --surface-2: #f7faf8;
@@ -38,12 +39,12 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 18px clamp(16px, 3vw, 36px);
+  padding: 10px clamp(12px, 2vw, 24px);
   border-bottom: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.92);
   position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: 80;
   backdrop-filter: blur(14px);
 }
 
@@ -64,7 +65,7 @@ p {
 
 h1 {
   margin-bottom: 0;
-  font-size: clamp(24px, 3vw, 40px);
+  font-size: clamp(20px, 2.2vw, 32px);
   line-height: 1.1;
 }
 
@@ -94,6 +95,53 @@ h2 {
   color: var(--muted);
   font-size: 12px;
   font-weight: 800;
+}
+
+.visitor-chip {
+  min-height: 32px;
+  border: 1px solid #cfe0d7;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #f5faf7;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.sync-chip {
+  min-height: 28px;
+  border: 1px solid #cfe0d7;
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: #f5faf7;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.sync-chip.live {
+  border-color: #9ed8b7;
+  background: #e8f7ee;
+  color: #13733d;
+}
+
+.sync-chip.connecting {
+  border-color: #efd18c;
+  background: #fff7df;
+  color: #8a5b06;
+}
+
+.sync-chip.error {
+  border-color: #efb5ae;
+  background: #fff0ee;
+  color: #a91d1d;
+}
+
+.viewer-mode #resetButton,
+.viewer-mode .status-chip {
+  display: none;
 }
 
 .select-wrap {
@@ -128,6 +176,7 @@ select {
   padding: 0 14px;
   font-weight: 800;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .danger {
@@ -148,15 +197,20 @@ select {
 }
 
 .app-shell {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 410px);
-  gap: 18px;
-  padding: 18px clamp(16px, 3vw, 36px);
+  display: block;
+  min-height: calc(100svh - 68px);
+  padding: 0;
 }
 
 .map-section,
 .control-panel {
   min-width: 0;
+}
+
+.map-section {
+  position: relative;
+  min-height: calc(100svh - 68px);
+  padding: 10px;
 }
 
 .section-head {
@@ -176,6 +230,38 @@ select {
 
 .section-head.compact h2 {
   margin-bottom: 0;
+}
+
+.map-section > .section-head {
+  position: relative;
+  z-index: 45;
+  top: auto;
+  left: auto;
+  right: auto;
+  width: min(100%, calc((100svh - 166px) * 2.234));
+  max-width: calc(100% - 448px);
+  min-height: 56px;
+  margin: 0 auto 10px;
+  border: 1px solid rgba(217, 226, 220, 0.82);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 28px rgba(24, 32, 29, 0.12);
+  backdrop-filter: blur(14px);
+  transition: max-width 0.22s ease, opacity 0.22s ease;
+}
+
+.tools-collapsed .map-section > .section-head {
+  max-width: 100%;
+}
+
+.map-section > .section-head h2 {
+  margin-bottom: 0;
+  font-size: 16px;
+}
+
+.map-section > .section-head p {
+  display: none;
 }
 
 .status-chip {
@@ -199,6 +285,10 @@ select {
   justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
+  border: 1px solid rgba(217, 226, 220, 0.84);
+  border-radius: 8px;
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .icon-button {
@@ -219,6 +309,11 @@ select {
   accent-color: var(--green);
 }
 
+.rotate-range {
+  width: 108px;
+  accent-color: var(--blue);
+}
+
 .live-dot {
   width: 9px;
   height: 9px;
@@ -235,7 +330,11 @@ select {
   border-radius: 8px;
   background: #b9c8c5;
   box-shadow: var(--shadow);
-  aspect-ratio: 1.42;
+  width: min(100%, calc((100svh - 166px) * 2.234));
+  height: auto;
+  aspect-ratio: var(--map-ratio);
+  min-height: 0;
+  margin: 0 auto;
   touch-action: none;
   cursor: grab;
   user-select: none;
@@ -253,13 +352,32 @@ select {
   transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)) scale(var(--zoom, 1));
   transform-origin: 0 0;
   will-change: transform;
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.map-frame.is-isometric {
+  perspective: 1400px;
+  background: linear-gradient(180deg, #c7d8d4, #8fbab3);
+}
+
+.map-frame.is-isometric .map-content {
+  transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)) scale(var(--zoom, 1)) rotateX(58deg) rotateZ(var(--map-rotate, 0deg));
+  transform-origin: 50% 55%;
+  filter: saturate(1.08) contrast(1.08) drop-shadow(0 22px 34px rgba(24, 32, 29, 0.3));
 }
 
 .map-content img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
+  image-rendering: auto;
+}
+
+.map-content .base-map-image {
+  transition: opacity 0.22s ease;
 }
 
 .work-overlay {
@@ -346,22 +464,17 @@ select {
 }
 
 .plot-level-label {
-  fill: #d81f1f;
-  font-size: 12px;
+  fill: #ffd166;
+  font-size: 13px;
   font-weight: 900;
   paint-order: stroke;
-  stroke: rgba(255, 255, 255, 0.88);
+  stroke: rgba(24, 32, 29, 0.86);
   stroke-width: 3px;
   pointer-events: none;
 }
 
 .zone {
-  fill: url("#zoneGradient");
-  opacity: var(--zone-opacity, 0.18);
-  stroke: rgba(255, 255, 255, 0.9);
-  stroke-width: 2;
-  stroke-dasharray: 8 7;
-  animation: dash 12s linear infinite;
+  display: none;
 }
 
 .zone-a {
@@ -388,12 +501,19 @@ select {
   animation: dash 8s linear infinite reverse;
 }
 
+.truck-route.route-secondary {
+  stroke: rgba(185, 52, 34, 0.62);
+  stroke-width: 4;
+  stroke-dasharray: 7 9;
+  animation-duration: 10s;
+}
+
 .machine {
   position: absolute;
   left: var(--x);
   top: var(--y);
-  width: var(--machine-w, 42px);
-  height: var(--machine-h, 30px);
+  width: var(--machine-w, 100px);
+  height: var(--machine-h, 72px);
   border: 0;
   background: transparent;
   filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.42));
@@ -413,19 +533,19 @@ select {
   pointer-events: none;
 }
 
-.machine:not(.broken).dozer .machine-visual {
+.machine:not(.broken):not(.standby).dozer .machine-visual {
   animation: dozerPush 2.8s ease-in-out infinite;
 }
 
-.machine:not(.broken).roller .machine-visual {
+.machine:not(.broken):not(.standby).roller .machine-visual {
   animation: rollerPass 2.6s ease-in-out infinite;
 }
 
-.machine:not(.broken).grader .machine-visual {
+.machine:not(.broken):not(.standby).grader .machine-visual {
   animation: graderBlade 3.2s ease-in-out infinite;
 }
 
-.machine:not(.broken).excavator .machine-visual {
+.machine:not(.broken):not(.standby).excavator .machine-visual {
   animation: excavatorDig 3.4s ease-in-out infinite;
 }
 
@@ -433,20 +553,24 @@ select {
   filter: grayscale(0.7) drop-shadow(0 5px 8px rgba(0, 0, 0, 0.42));
 }
 
+.machine.standby {
+  filter: saturate(0.55) opacity(0.9) drop-shadow(0 5px 8px rgba(0, 0, 0, 0.42));
+}
+
 .machine .work-effect {
   position: absolute;
-  left: 106%;
-  top: 50%;
-  width: 34px;
-  height: 14px;
-  transform: translateY(-50%);
+  left: 50%;
+  top: -30%;
+  width: 42px;
+  height: 16px;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
   background: rgba(215, 181, 117, 0.72);
   opacity: 0;
   pointer-events: none;
 }
 
-.machine:not(.broken) .work-effect {
+.machine:not(.broken):not(.standby) .work-effect {
   animation: dustPulse 2.3s ease-in-out infinite;
 }
 
@@ -490,6 +614,11 @@ select {
 
 .status-badge.broken {
   background: #d81f1f;
+}
+
+.status-badge.standby {
+  background: #d69214;
+  font-size: 9px;
 }
 
 .hide-status-badges .status-badge {
@@ -558,8 +687,8 @@ select {
 }
 
 .excavator {
-  --machine-w: 30px;
-  --machine-h: 30px;
+  --machine-w: 60px;
+  --machine-h: 60px;
 }
 
 .excavator .machine-visual {
@@ -567,8 +696,8 @@ select {
 }
 
 .dozer {
-  --machine-w: 28px;
-  --machine-h: 28px;
+  --machine-w: 56px;
+  --machine-h: 56px;
 }
 
 .dozer .machine-visual {
@@ -576,8 +705,8 @@ select {
 }
 
 .grader {
-  --machine-w: 34px;
-  --machine-h: 34px;
+  --machine-w: 68px;
+  --machine-h: 68px;
 }
 
 .grader .machine-visual {
@@ -585,8 +714,8 @@ select {
 }
 
 .roller {
-  --machine-w: 28px;
-  --machine-h: 28px;
+  --machine-w: 56px;
+  --machine-h: 56px;
 }
 
 .roller .machine-visual {
@@ -625,19 +754,7 @@ select {
 }
 
 .map-label {
-  position: absolute;
-  min-width: 52px;
-  border: 0;
-  border-radius: 6px;
-  padding: 4px 7px;
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 900;
-  text-align: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-  cursor: pointer;
-  z-index: 15;
+  display: none;
 }
 
 .label-zone-a {
@@ -676,18 +793,389 @@ select {
   pointer-events: none;
 }
 
+.reference-panel {
+  width: min(100%, calc((100svh - 166px) * 2.234));
+  margin: 10px auto 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 24px rgba(25, 37, 31, 0.08);
+  content-visibility: auto;
+  contain-intrinsic-size: 320px;
+}
+
+.machine-status-panel {
+  width: min(100%, calc((100svh - 166px) * 2.234));
+  margin: 10px auto 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 24px rgba(25, 37, 31, 0.08);
+  content-visibility: auto;
+  contain-intrinsic-size: 760px;
+}
+
+.machine-status-head,
+.machine-status-group header {
+  display: flex;
+  align-items: center;
+}
+
+.machine-status-head {
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+
+.machine-status-head strong {
+  font-size: 14px;
+}
+
+.machine-status-head > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.machine-status-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    "dozer roller"
+    "grader excavator";
+  gap: 9px;
+}
+
+.machine-status-group.status-dozer { grid-area: dozer; }
+.machine-status-group.status-grader { grid-area: grader; }
+.machine-status-group.status-roller { grid-area: roller; }
+.machine-status-group.status-excavator { grid-area: excavator; }
+
+.machine-status-group {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 9px;
+  background: var(--surface-2);
+}
+
+.machine-status-group header {
+  gap: 7px;
+  min-height: 32px;
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.machine-status-group header small {
+  margin-left: auto;
+  border-radius: 999px;
+  padding: 3px 7px;
+  background: #e4ece7;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.machine-type-icon {
+  width: 48px;
+  height: 28px;
+  flex: 0 0 auto;
+  background: center / contain no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.18));
+}
+
+.machine-type-icon.dozer { background-image: url("assets/dozer-side-real.png"); }
+.machine-type-icon.grader { background-image: url("assets/grader-status.webp"); }
+.machine-type-icon.roller { background-image: url("assets/roller-status.webp"); }
+.machine-type-icon.excavator { background-image: url("assets/excavator-status-optimized.webp"); }
+
+.machine-status-list {
+  display: grid;
+  gap: 6px;
+}
+
+.machine-status-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.42fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  border-left: 4px solid var(--green);
+  border-radius: 5px;
+  padding: 6px 7px;
+  background: #fff;
+}
+
+.machine-status-row.broken { border-left-color: #d81f1f; }
+.machine-status-row.standby { border-left-color: #d69214; }
+
+.machine-status-id {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+
+.machine-status-id strong {
+  font-size: 11px;
+}
+
+.machine-status-id span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.machine-row-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  min-width: 0;
+}
+
+.status-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.status-option {
+  min-width: 0;
+}
+
+.status-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.status-option span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+  border: 1px solid #d8e1dc;
+  border-radius: 5px;
+  padding: 2px 6px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1.15;
+  text-align: center;
+  cursor: pointer;
+}
+
+.status-option input:checked + span {
+  border-color: var(--green);
+  background: #e8f6ee;
+  color: #13733d;
+}
+
+.status-option.broken input:checked + span {
+  border-color: #d81f1f;
+  background: #fff0ee;
+  color: #a91d1d;
+}
+
+.status-option.standby input:checked + span {
+  border-color: #d69214;
+  background: #fff7df;
+  color: #8a5b06;
+}
+
+.viewer-mode .status-option span {
+  cursor: default;
+}
+
+.viewer-mode .status-option input:not(:checked) + span {
+  display: none;
+}
+
+.viewer-mode .status-options {
+  display: flex;
+}
+
+.shift-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 8px;
+}
+
+.shift-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.shift-options input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--blue);
+}
+
+.viewer-mode .shift-options {
+  opacity: 0.72;
+}
+
+.reference-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.reference-slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.reference-slot {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: #fff;
+}
+
+.reference-thumb {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1.45;
+  overflow: hidden;
+  border: 0;
+  border-radius: 6px;
+  padding: 0;
+  background: #e6efeb;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.reference-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reference-thumb.placeholder {
+  border: 1px dashed #b8c8bf;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: default;
+}
+
+.reference-meta {
+  display: grid;
+  gap: 6px;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.reference-admin {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.viewer-mode .reference-admin {
+  display: none;
+}
+
+.reference-upload {
+  display: grid;
+  place-items: center;
+  min-height: 32px;
+  padding: 0 8px;
+  text-align: center;
+}
+
+.reference-upload input {
+  display: none;
+}
+
 .control-panel {
   display: grid;
   gap: 14px;
   align-content: start;
+  position: fixed;
+  z-index: 46;
+  top: 86px;
+  right: 14px;
+  bottom: 14px;
+  width: min(410px, calc(100vw - 28px));
+  overflow: auto;
+  padding-right: 2px;
+  scrollbar-width: thin;
+  transition: transform 0.24s ease, opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.tools-collapsed .control-panel {
+  transform: translateX(calc(100% + 28px));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .panel-section {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 10px 24px rgba(25, 37, 31, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+body.map-fullscreen {
+  overflow: hidden;
+}
+
+body.map-fullscreen .topbar,
+body.map-fullscreen .control-panel,
+body.map-fullscreen .machine-status-panel,
+body.map-fullscreen .reference-panel {
+  display: none;
+}
+
+body.map-fullscreen .map-section,
+.map-section:fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  min-height: 100svh;
+  padding: 10px;
+  background: var(--bg);
+}
+
+body.map-fullscreen .map-section > .section-head,
+.map-section:fullscreen > .section-head {
+  max-width: 100%;
+  width: 100%;
+}
+
+body.map-fullscreen .map-frame,
+.map-section:fullscreen .map-frame {
+  width: 100%;
+  height: calc(100svh - 96px);
+  aspect-ratio: auto;
+  max-height: none;
 }
 
 .metric-grid {
@@ -961,11 +1449,11 @@ select {
 
 .machine-photo-preview {
   display: block;
-  width: 100%;
-  max-height: 150px;
+  width: 72px;
+  height: 72px;
   margin-top: 9px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 8px;
   object-fit: cover;
 }
 
@@ -1013,6 +1501,75 @@ select {
 
 .section-modal::backdrop {
   background: rgba(8, 13, 11, 0.48);
+}
+
+.login-dialog {
+  width: min(360px, calc(100vw - 28px));
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.login-dialog::backdrop {
+  background: rgba(8, 13, 11, 0.42);
+}
+
+.login-card {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+}
+
+.login-card h2 {
+  margin-bottom: 0;
+}
+
+.login-card label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.login-card input {
+  height: 38px;
+  padding: 0 10px;
+}
+
+.login-error {
+  display: none;
+  margin: 0;
+  color: #b93422;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.login-error.show {
+  display: block;
+}
+
+.reference-dialog {
+  width: min(1100px, calc(100vw - 28px));
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.reference-dialog::backdrop {
+  background: rgba(8, 13, 11, 0.56);
+}
+
+.reference-dialog img {
+  display: block;
+  width: 100%;
+  max-height: min(76vh, 760px);
+  object-fit: contain;
+  background: #101513;
 }
 
 .modal-head {
@@ -1180,11 +1737,11 @@ select {
 @keyframes dustPulse {
   0%, 100% {
     opacity: 0.18;
-    transform: translateY(-50%) scale(0.72);
+    transform: translate(-50%, -50%) scale(0.72);
   }
   50% {
     opacity: 0.9;
-    transform: translateY(-50%) scale(1.12);
+    transform: translate(-50%, -50%) scale(1.12);
   }
 }
 
@@ -1200,20 +1757,77 @@ select {
 }
 
 @media (max-width: 1180px) {
-  .app-shell {
-    grid-template-columns: 1fr;
+  .map-section > .section-head {
+    max-width: calc(100% - 36px);
   }
 
   .control-panel {
+    position: static;
+    width: auto;
+    max-height: none;
+    margin: 0 10px 14px;
+    padding-right: 0;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .tools-collapsed .control-panel {
+    display: none;
   }
 }
 
 @media (max-width: 760px) {
-  .topbar,
-  .section-head {
+  .topbar {
     align-items: flex-start;
     flex-direction: column;
+    gap: 8px;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  .topbar .ghost-button,
+  .topbar select {
+    min-height: 34px;
+    height: 34px;
+  }
+
+  .select-wrap > span {
+    display: none;
+  }
+
+  .topbar-actions {
+    justify-content: flex-start;
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .topbar-actions > * {
+    flex: 0 0 auto;
+  }
+
+  .map-section {
+    min-height: auto;
+    padding: 8px;
+  }
+
+  .map-section > .section-head {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    max-width: none;
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 8px;
+    padding: 8px;
   }
 
   .topbar-actions {
@@ -1223,10 +1837,19 @@ select {
 
   .map-tools {
     justify-content: flex-start;
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
   }
 
   #zoomRange {
-    width: 120px;
+    flex: 0 0 96px;
+    width: 96px;
+  }
+
+  .rotate-range {
+    flex: 0 0 92px;
+    width: 92px;
   }
 
   .control-panel {
@@ -1234,7 +1857,10 @@ select {
   }
 
   .map-frame {
-    aspect-ratio: 1.1;
+    width: 100%;
+    height: auto;
+    min-height: 260px;
+    aspect-ratio: var(--map-ratio);
   }
 
   .metric-grid {
@@ -1247,5 +1873,89 @@ select {
 
   .layer-card input[type="range"] {
     width: 100%;
+  }
+
+  .drag-hint {
+    right: 8px;
+    left: 8px;
+    bottom: 8px;
+    max-width: none;
+    font-size: 11px;
+  }
+
+  .report-actions,
+  .machine-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reference-panel {
+    width: 100%;
+  }
+
+  .machine-status-panel {
+    width: 100%;
+  }
+
+  .machine-status-groups {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "dozer"
+      "grader"
+      "roller"
+      "excavator";
+  }
+
+  .machine-status-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .machine-status-row {
+    grid-template-columns: minmax(86px, 0.36fr) minmax(0, 1fr);
+  }
+
+  .machine-row-controls {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .shift-options {
+    justify-content: flex-start;
+  }
+
+  .reference-slots {
+    grid-template-columns: 1fr;
+  }
+
+  .reference-admin {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .topbar {
+    position: static;
+  }
+
+  .app-shell,
+  .map-section {
+    min-height: 100svh;
+  }
+
+  .map-frame {
+    width: 100%;
+    height: calc(100svh - 98px);
+    aspect-ratio: auto;
+    min-height: 360px;
+  }
+
+  .map-section > .section-head {
+    top: 14px;
+  }
+
+  .control-panel {
+    top: 14px;
+    bottom: 10px;
   }
 }
