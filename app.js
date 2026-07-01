@@ -12,7 +12,7 @@ const dictionaries = {
     tools: "เครื่องมือ",
     hideTools: "ซ่อนเครื่องมือ",
     adminMode: "Admin Drag Mode",
-    dragHint: "ใช้ล้อเมาส์เพื่อซูม, ลากพื้นแผนที่เพื่อเลื่อน, ลากเครื่องจักรเพื่ออัปเดตพิกัด",
+    dragHint: "ใช้ล้อเมาส์หรือสองนิ้วเพื่อซูม, ลากพื้นแผนที่เพื่อเลื่อน, ลากเครื่องจักรเพื่ออัปเดตพิกัด",
     adminTools: "เครื่องมือแอดมิน",
     editMode: "โหมดแก้ไข",
     modeMachine: "ย้ายเครื่องจักร",
@@ -110,7 +110,7 @@ const dictionaries = {
     tools: "Tools",
     hideTools: "Hide tools",
     adminMode: "Admin drag mode",
-    dragHint: "Mouse wheel to zoom, drag the map to pan, drag machines to update positions",
+    dragHint: "Mouse wheel or two fingers to zoom, drag the map to pan, drag machines to update positions",
     adminTools: "Admin tools",
     editMode: "Edit mode",
     modeMachine: "Move machines",
@@ -208,7 +208,7 @@ const dictionaries = {
     tools: "工具",
     hideTools: "隐藏工具",
     adminMode: "管理员拖动模式",
-    dragHint: "滚轮缩放，拖动地图平移，拖动机械更新坐标",
+    dragHint: "滚轮或双指缩放，拖动地图平移，拖动机械更新坐标",
     adminTools: "管理员工具",
     editMode: "编辑模式",
     modeMachine: "移动机械",
@@ -479,6 +479,7 @@ const timelineDate = document.querySelector("#timelineDate");
 const timelinePlayButton = document.querySelector("#timelinePlayButton");
 const timelineImages = document.querySelectorAll("[data-timeline-image]");
 const fullscreenMapButton = document.querySelector("#fullscreenMapButton");
+const fullscreenExitButton = document.querySelector("#fullscreenExitButton");
 const toggleToolsButton = document.querySelector("#toggleToolsButton");
 const editModeSelect = document.querySelector("#editModeSelect");
 const addRoutePointButton = document.querySelector("#addRoutePointButton");
@@ -1123,7 +1124,7 @@ async function toggleMapFullscreen() {
   }, 0);
 }
 
-function setZoom(nextZoom, originX = mapFrame.clientWidth / 2, originY = mapFrame.clientHeight / 2) {
+function setZoom(nextZoom, originX = mapFrame.clientWidth / 2, originY = mapFrame.clientHeight / 2, persist = true) {
   const currentZoom = state.view.zoom;
   const zoom = Math.min(3.5, Math.max(1, Number(nextZoom)));
   const mapX = (originX - state.view.panX) / currentZoom;
@@ -1133,7 +1134,7 @@ function setZoom(nextZoom, originX = mapFrame.clientWidth / 2, originY = mapFram
   state.view.panX = originX - mapX * zoom;
   state.view.panY = originY - mapY * zoom;
   clampPan();
-  saveState();
+  if (persist) saveState();
   applyMapView();
 }
 
@@ -1651,6 +1652,13 @@ fullscreenMapButton.addEventListener("click", () => {
   });
 });
 
+fullscreenExitButton.addEventListener("click", () => {
+  toggleMapFullscreen().catch(() => {
+    document.body.classList.remove("map-fullscreen");
+    updateToolButtons();
+  });
+});
+
 toggleToolsButton.addEventListener("click", () => {
   if (!isAdmin()) {
     loginDialog.showModal();
@@ -2005,10 +2013,42 @@ mapFrame.addEventListener(
 );
 
 let panStart = null;
+const mapPointers = new Map();
+let pinchStart = null;
+
+function getPinchMetrics() {
+  const points = Array.from(mapPointers.values());
+  if (points.length < 2) return null;
+  const [a, b] = points;
+  const rect = mapFrame.getBoundingClientRect();
+  const centerX = (a.clientX + b.clientX) / 2 - rect.left;
+  const centerY = (a.clientY + b.clientY) / 2 - rect.top;
+  const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  return { centerX, centerY, distance };
+}
 
 mapFrame.addEventListener("pointerdown", (event) => {
   if (event.target.closest(".map-label")) return;
   if (event.target.closest(".machine")) return;
+  if (event.target.closest("button, input, select, textarea, a")) return;
+  mapPointers.set(event.pointerId, { clientX: event.clientX, clientY: event.clientY });
+  mapFrame.setPointerCapture(event.pointerId);
+
+  if (mapPointers.size >= 2) {
+    const metrics = getPinchMetrics();
+    if (metrics) {
+      pinchStart = {
+        distance: metrics.distance || 1,
+        zoom: state.view.zoom,
+        centerX: metrics.centerX,
+        centerY: metrics.centerY,
+      };
+    }
+    panStart = null;
+    mapFrame.classList.add("is-panning");
+    return;
+  }
+
   panStart = {
     pointerId: event.pointerId,
     x: event.clientX,
@@ -2017,7 +2057,6 @@ mapFrame.addEventListener("pointerdown", (event) => {
     panY: state.view.panY,
   };
   mapFrame.classList.add("is-panning");
-  mapFrame.setPointerCapture(event.pointerId);
 });
 
 mapFrame.addEventListener("click", (event) => {
@@ -2028,6 +2067,18 @@ mapFrame.addEventListener("click", (event) => {
 });
 
 mapFrame.addEventListener("pointermove", (event) => {
+  if (mapPointers.has(event.pointerId)) {
+    mapPointers.set(event.pointerId, { clientX: event.clientX, clientY: event.clientY });
+  }
+
+  if (pinchStart && mapPointers.size >= 2) {
+    const metrics = getPinchMetrics();
+    if (!metrics) return;
+    const nextZoom = pinchStart.zoom * (metrics.distance / pinchStart.distance);
+    setZoom(nextZoom, metrics.centerX, metrics.centerY, false);
+    return;
+  }
+
   if (!panStart || event.pointerId !== panStart.pointerId) return;
   state.view.panX = panStart.panX + event.clientX - panStart.x;
   state.view.panY = panStart.panY + event.clientY - panStart.y;
@@ -2036,14 +2087,21 @@ mapFrame.addEventListener("pointermove", (event) => {
 });
 
 mapFrame.addEventListener("pointerup", (event) => {
-  if (!panStart || event.pointerId !== panStart.pointerId) return;
-  panStart = null;
-  mapFrame.classList.remove("is-panning");
+  mapPointers.delete(event.pointerId);
+  if (pinchStart && mapPointers.size < 2) {
+    pinchStart = null;
+    panStart = null;
+  } else if (panStart && event.pointerId === panStart.pointerId) {
+    panStart = null;
+  }
+  if (mapPointers.size === 0) mapFrame.classList.remove("is-panning");
   saveState();
 });
 
 mapFrame.addEventListener("pointercancel", () => {
   panStart = null;
+  pinchStart = null;
+  mapPointers.clear();
   mapFrame.classList.remove("is-panning");
 });
 
