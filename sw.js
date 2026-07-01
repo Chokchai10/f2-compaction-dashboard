@@ -1,4 +1,4 @@
-const CACHE_NAME = "f2-dashboard-v1";
+const CACHE_NAME = "f2-dashboard-v2";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -6,6 +6,7 @@ const CORE_ASSETS = [
   "./app.js",
   "./realtime-config.js",
   "./assets/F2.jpg",
+  "./assets/F2-2026-07-01.jpg",
   "./assets/dozer-real.png",
   "./assets/roller-real.png",
   "./assets/grader-real.png",

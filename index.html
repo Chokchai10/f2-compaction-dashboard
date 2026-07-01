@@ -55,9 +55,23 @@
           </div>
         </div>
 
+        <div class="map-timeline" aria-label="F2 background time-lapse">
+          <button class="icon-button timeline-play" id="timelinePlayButton" type="button" aria-label="Play time-lapse" title="Play time-lapse">▶</button>
+          <div class="timeline-track-wrap">
+            <div class="timeline-meta">
+              <strong data-i18n="timelapse">ภาพพื้นที่ตามช่วงเวลา</strong>
+              <time id="timelineDate">09/06/2026</time>
+            </div>
+            <input id="timelineRange" type="range" min="0" max="1" step="1" value="0" aria-label="Select F2 background date" />
+            <div class="timeline-dates" aria-hidden="true"><span>09/06/2026</span><span>01/07/2026</span></div>
+          </div>
+        </div>
+
         <div class="map-frame" id="mapFrame">
+          <button class="fullscreen-exit-button" id="fullscreenExitButton" type="button" aria-label="Exit full screen">⤢</button>
           <div class="map-content" id="mapContent">
-            <img class="base-map-image" src="assets/F2.jpg" alt="F2 reclamation and compaction site map" fetchpriority="high" decoding="async" />
+            <img class="base-map-image active" src="assets/F2.jpg" alt="F2 reclamation and compaction site map on 09/06/2026" fetchpriority="high" decoding="async" data-timeline-image="0" />
+            <img class="base-map-image" src="assets/F2-2026-07-01.jpg" alt="F2 reclamation and compaction site map on 01/07/2026" decoding="async" data-timeline-image="1" />
             <svg class="work-overlay" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
               <defs>
                 <linearGradient id="zoneGradient" x1="0" x2="1" y1="0" y2="1">
@@ -83,8 +97,8 @@
             <div class="truck truck-a"></div>
             <div class="truck truck-b"></div>
           </div>
-          <div class="drag-hint" data-i18n="dragHint">ใช้ล้อเมาส์เพื่อซูม, ลากพื้นแผนที่เพื่อเลื่อน, ลากเครื่องจักรเพื่ออัปเดตพิกัด</div>
         </div>
+        <div class="drag-hint" data-i18n="dragHint">ใช้ล้อเมาส์หรือสองนิ้วเพื่อซูม, ลากพื้นแผนที่เพื่อเลื่อน, ลากเครื่องจักรเพื่ออัปเดตพิกัด</div>
         <section class="machine-status-panel" aria-labelledby="machineStatusTitle">
           <div class="machine-status-head">
             <strong id="machineStatusTitle" data-i18n="machineWorkingStatus">สถานะการทำงานของเครื่องจักร</strong>

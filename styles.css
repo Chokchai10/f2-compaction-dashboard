@@ -340,6 +340,24 @@ select {
   user-select: none;
 }
 
+.fullscreen-exit-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 80;
+  display: none;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  background: rgba(24, 32, 29, 0.42);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+}
+
 .map-frame.is-panning {
   cursor: grabbing;
 }
@@ -377,7 +395,77 @@ select {
 }
 
 .map-content .base-map-image {
-  transition: opacity 0.22s ease;
+  opacity: 0;
+  transition: opacity 0.72s ease, filter 0.72s ease;
+}
+
+.map-content .base-map-image.active {
+  opacity: 1;
+}
+
+.map-timeline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 760px);
+  margin: 0 auto 10px;
+  padding: 8px 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(24, 32, 29, 0.08);
+}
+
+.timeline-play {
+  flex: 0 0 34px;
+}
+
+.timeline-track-wrap {
+  min-width: 0;
+  flex: 1;
+}
+
+.timeline-meta,
+.timeline-dates {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.timeline-meta {
+  margin-bottom: 2px;
+  font-size: 0.78rem;
+}
+
+.timeline-meta time {
+  color: var(--green);
+  font-weight: 800;
+}
+
+.map-timeline input[type="range"] {
+  width: 100%;
+  accent-color: var(--green);
+}
+
+.timeline-dates {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.map-frame.is-timelapse-transition::after {
+  content: "";
+  position: absolute;
+  z-index: 20;
+  inset: 0 auto 0 -12%;
+  width: 12%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.48), transparent);
+  animation: timeline-sweep 0.82s ease-out;
+}
+
+@keyframes timeline-sweep {
+  to { transform: translateX(930%); }
 }
 
 .work-overlay {
@@ -778,19 +866,22 @@ select {
 }
 
 .drag-hint {
-  position: absolute;
-  left: 12px;
-  bottom: 12px;
-  max-width: min(560px, calc(100% - 24px));
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  width: min(100%, calc((100svh - 166px) * 2.234));
+  max-width: calc(100% - 448px);
+  margin: 8px auto 0;
+  border: 1px solid rgba(217, 226, 220, 0.86);
   border-radius: 6px;
   padding: 7px 10px;
-  background: rgba(24, 32, 29, 0.76);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--muted);
   font-size: 12px;
   font-weight: 800;
+  text-align: center;
   z-index: 25;
-  pointer-events: none;
+}
+
+.tools-collapsed .drag-hint {
+  max-width: 100%;
 }
 
 .reference-panel {
@@ -1150,7 +1241,9 @@ body.map-fullscreen {
 body.map-fullscreen .topbar,
 body.map-fullscreen .control-panel,
 body.map-fullscreen .machine-status-panel,
-body.map-fullscreen .reference-panel {
+body.map-fullscreen .reference-panel,
+body.map-fullscreen .map-timeline,
+body.map-fullscreen .drag-hint {
   display: none;
 }
 
@@ -1160,22 +1253,30 @@ body.map-fullscreen .map-section,
   inset: 0;
   z-index: 100;
   min-height: 100svh;
-  padding: 10px;
-  background: var(--bg);
+  padding: 0;
+  background: #111815;
 }
 
 body.map-fullscreen .map-section > .section-head,
 .map-section:fullscreen > .section-head {
-  max-width: 100%;
-  width: 100%;
+  display: none;
 }
 
 body.map-fullscreen .map-frame,
 .map-section:fullscreen .map-frame {
   width: 100%;
-  height: calc(100svh - 96px);
+  height: 100svh;
   aspect-ratio: auto;
   max-height: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body.map-fullscreen .fullscreen-exit-button,
+.map-section:fullscreen .fullscreen-exit-button {
+  display: grid;
+  place-items: center;
 }
 
 .metric-grid {
@@ -1876,10 +1977,9 @@ body.map-fullscreen .map-frame,
   }
 
   .drag-hint {
-    right: 8px;
-    left: 8px;
-    bottom: 8px;
     max-width: none;
+    width: 100%;
+    margin-top: 6px;
     font-size: 11px;
   }
 
@@ -1957,5 +2057,21 @@ body.map-fullscreen .map-frame,
   .control-panel {
     top: 14px;
     bottom: 10px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  body.map-fullscreen .map-frame,
+  .map-section:fullscreen .map-frame {
+    height: 100svh;
+    min-height: 0;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 760px) {
+  body.map-fullscreen .map-frame,
+  .map-section:fullscreen .map-frame {
+    height: 100svh;
+    min-height: 0;
   }
 }

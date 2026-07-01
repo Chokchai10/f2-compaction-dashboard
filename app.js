@@ -12,7 +12,7 @@ const dictionaries = {
     tools: "เครื่องมือ",
     hideTools: "ซ่อนเครื่องมือ",
     adminMode: "Admin Drag Mode",
-    dragHint: "ใช้ล้อเมาส์เพื่อซูม, ลากพื้นแผนที่เพื่อเลื่อน, ลากเครื่องจักรเพื่ออัปเดตพิกัด",
+    dragHint: "ใช้ล้อเมาส์หรือสองนิ้วเพื่อซูม, ลากพื้นแผนที่เพื่อเลื่อน, ลากเครื่องจักรเพื่ออัปเดตพิกัด",
     adminTools: "เครื่องมือแอดมิน",
     editMode: "โหมดแก้ไข",
     modeMachine: "ย้ายเครื่องจักร",
@@ -110,7 +110,7 @@ const dictionaries = {
     tools: "Tools",
     hideTools: "Hide tools",
     adminMode: "Admin drag mode",
-    dragHint: "Mouse wheel to zoom, drag the map to pan, drag machines to update positions",
+    dragHint: "Mouse wheel or two fingers to zoom, drag the map to pan, drag machines to update positions",
     adminTools: "Admin tools",
     editMode: "Edit mode",
     modeMachine: "Move machines",
@@ -208,7 +208,7 @@ const dictionaries = {
     tools: "工具",
     hideTools: "隐藏工具",
     adminMode: "管理员拖动模式",
-    dragHint: "滚轮缩放，拖动地图平移，拖动机械更新坐标",
+    dragHint: "滚轮或双指缩放，拖动地图平移，拖动机械更新坐标",
     adminTools: "管理员工具",
     editMode: "编辑模式",
     modeMachine: "移动机械",
@@ -295,11 +295,29 @@ const dictionaries = {
   },
 };
 
+Object.assign(dictionaries.th, {
+  timelapse: "ภาพพื้นที่ตามช่วงเวลา",
+  playTimelapse: "เล่นภาพตามช่วงเวลา",
+  pauseTimelapse: "หยุดภาพตามช่วงเวลา",
+});
+Object.assign(dictionaries.en, {
+  timelapse: "Site time-lapse",
+  playTimelapse: "Play time-lapse",
+  pauseTimelapse: "Pause time-lapse",
+});
+Object.assign(dictionaries.zh, {
+  timelapse: "场地延时影像",
+  playTimelapse: "播放延时影像",
+  pauseTimelapse: "暂停延时影像",
+});
+
 const machineDefaults = [
   { id: "m1", type: "excavator", x: 28, y: 32, angle: 90 },
   { id: "m2", type: "excavator", x: 40, y: 36, angle: 90 },
   { id: "m3", type: "excavator", x: 55, y: 41, angle: 90 },
   { id: "m4", type: "excavator", x: 70, y: 50, angle: 90 },
+  { id: "m16", type: "excavator", x: 81, y: 34, angle: 90 },
+  { id: "m17", type: "excavator", x: 18, y: 61, angle: 90 },
   { id: "m5", type: "dozer", x: 21, y: 49, angle: 90 },
   { id: "m6", type: "dozer", x: 33, y: 50, angle: 90 },
   { id: "m7", type: "dozer", x: 45, y: 50, angle: 90 },
@@ -412,18 +430,19 @@ const defaultState = {
     { id: "zone-d", elevation: "3.0m", progress: 14 },
   ],
   fleet: [
-    { id: "excavator", count: 4, active: 4, hours: 8.5 },
+    { id: "excavator", count: 6, active: 6, hours: 8.5 },
     { id: "dozer", count: 8, active: 7, hours: 9 },
     { id: "grader", count: 1, active: 1, hours: 6.5 },
     { id: "roller", count: 2, active: 2, hours: 7.5 },
   ],
-  schemaVersion: 5,
+  schemaVersion: 6,
 };
 
 const storageKey = "f2-compaction-dashboard-state";
 const adminSessionKey = "f2-compaction-admin-session";
 const visitorCountKey = "f2-compaction-visitor-count";
 const visitorSessionKey = "f2-compaction-visitor-session";
+const timelineChoiceKey = "f2-compaction-timeline-choice";
 let state = loadState();
 const realtimeConfig = window.F2_REALTIME_CONFIG || {};
 let supabaseClient = null;
@@ -432,6 +451,8 @@ let remoteSaveTimer = null;
 let applyingRemoteState = false;
 let realtimeInitialized = false;
 let adminSyncPassword = "";
+let activeTimelineIndex = Math.min(1, Math.max(0, Number(localStorage.getItem(timelineChoiceKey)) || 0));
+let timelinePlayTimer = null;
 
 if (realtimeConfig.enabled) sessionStorage.removeItem(adminSessionKey);
 
@@ -453,7 +474,12 @@ const zoomOutButton = document.querySelector("#zoomOutButton");
 const resetViewButton = document.querySelector("#resetViewButton");
 const isoViewButton = document.querySelector("#isoViewButton");
 const mapRotateRange = document.querySelector("#mapRotateRange");
+const timelineRange = document.querySelector("#timelineRange");
+const timelineDate = document.querySelector("#timelineDate");
+const timelinePlayButton = document.querySelector("#timelinePlayButton");
+const timelineImages = document.querySelectorAll("[data-timeline-image]");
 const fullscreenMapButton = document.querySelector("#fullscreenMapButton");
+const fullscreenExitButton = document.querySelector("#fullscreenExitButton");
 const toggleToolsButton = document.querySelector("#toggleToolsButton");
 const editModeSelect = document.querySelector("#editModeSelect");
 const addRoutePointButton = document.querySelector("#addRoutePointButton");
@@ -593,6 +619,15 @@ function normalizeState(saved) {
   if ((saved.schemaVersion || 1) < 5) {
     normalized.referenceImages = structuredClone(defaultReferenceImages);
     normalized.schemaVersion = 5;
+  }
+
+  if ((saved.schemaVersion || 1) < 6) {
+    const excavatorFleet = normalized.fleet.find((item) => item.id === "excavator");
+    if (excavatorFleet) {
+      excavatorFleet.count = 6;
+      excavatorFleet.active = Math.max(6, Number(excavatorFleet.active) || 0);
+    }
+    normalized.schemaVersion = 6;
   }
 
   return normalized;
@@ -1024,6 +1059,32 @@ function applyMapView() {
   updateToolButtons();
 }
 
+function renderMapTimeline(animate = false) {
+  timelineImages.forEach((image, index) => image.classList.toggle("active", index === activeTimelineIndex));
+  timelineRange.value = String(activeTimelineIndex);
+  timelineDate.textContent = activeTimelineIndex === 0 ? "09/06/2026" : "01/07/2026";
+  timelinePlayButton.textContent = timelinePlayTimer ? "Ⅱ" : "▶";
+  timelinePlayButton.setAttribute("aria-label", timelinePlayTimer ? t("pauseTimelapse") : t("playTimelapse"));
+  timelinePlayButton.title = timelinePlayButton.getAttribute("aria-label");
+  if (animate) {
+    mapFrame.classList.remove("is-timelapse-transition");
+    requestAnimationFrame(() => mapFrame.classList.add("is-timelapse-transition"));
+    window.setTimeout(() => mapFrame.classList.remove("is-timelapse-transition"), 850);
+  }
+}
+
+function setTimelineIndex(index, animate = true) {
+  activeTimelineIndex = Math.min(1, Math.max(0, Number(index) || 0));
+  localStorage.setItem(timelineChoiceKey, String(activeTimelineIndex));
+  renderMapTimeline(animate);
+}
+
+function stopTimelinePlayback() {
+  window.clearInterval(timelinePlayTimer);
+  timelinePlayTimer = null;
+  renderMapTimeline();
+}
+
 function updateToolButtons() {
   if (toggleToolsButton) {
     const collapsed = document.body.classList.contains("tools-collapsed");
@@ -1063,7 +1124,7 @@ async function toggleMapFullscreen() {
   }, 0);
 }
 
-function setZoom(nextZoom, originX = mapFrame.clientWidth / 2, originY = mapFrame.clientHeight / 2) {
+function setZoom(nextZoom, originX = mapFrame.clientWidth / 2, originY = mapFrame.clientHeight / 2, persist = true) {
   const currentZoom = state.view.zoom;
   const zoom = Math.min(3.5, Math.max(1, Number(nextZoom)));
   const mapX = (originX - state.view.panX) / currentZoom;
@@ -1073,7 +1134,7 @@ function setZoom(nextZoom, originX = mapFrame.clientWidth / 2, originY = mapFram
   state.view.panX = originX - mapX * zoom;
   state.view.panY = originY - mapY * zoom;
   clampPan();
-  saveState();
+  if (persist) saveState();
   applyMapView();
 }
 
@@ -1465,6 +1526,7 @@ function render() {
   updateZoneOpacity();
   updateMetrics();
   applyMapView();
+  renderMapTimeline();
   updateLastUpdated();
 }
 
@@ -1568,9 +1630,31 @@ mapRotateRange.addEventListener("change", () => {
   saveState();
 });
 
+timelineRange.addEventListener("input", (event) => {
+  stopTimelinePlayback();
+  setTimelineIndex(event.target.value);
+});
+
+timelinePlayButton.addEventListener("click", () => {
+  if (timelinePlayTimer) {
+    stopTimelinePlayback();
+    return;
+  }
+  if (activeTimelineIndex === 1) setTimelineIndex(0, true);
+  timelinePlayTimer = window.setInterval(() => setTimelineIndex(activeTimelineIndex === 0 ? 1 : 0), 1800);
+  renderMapTimeline();
+});
+
 fullscreenMapButton.addEventListener("click", () => {
   toggleMapFullscreen().catch(() => {
     document.body.classList.toggle("map-fullscreen");
+    updateToolButtons();
+  });
+});
+
+fullscreenExitButton.addEventListener("click", () => {
+  toggleMapFullscreen().catch(() => {
+    document.body.classList.remove("map-fullscreen");
     updateToolButtons();
   });
 });
@@ -1929,10 +2013,42 @@ mapFrame.addEventListener(
 );
 
 let panStart = null;
+const mapPointers = new Map();
+let pinchStart = null;
+
+function getPinchMetrics() {
+  const points = Array.from(mapPointers.values());
+  if (points.length < 2) return null;
+  const [a, b] = points;
+  const rect = mapFrame.getBoundingClientRect();
+  const centerX = (a.clientX + b.clientX) / 2 - rect.left;
+  const centerY = (a.clientY + b.clientY) / 2 - rect.top;
+  const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  return { centerX, centerY, distance };
+}
 
 mapFrame.addEventListener("pointerdown", (event) => {
   if (event.target.closest(".map-label")) return;
   if (event.target.closest(".machine")) return;
+  if (event.target.closest("button, input, select, textarea, a")) return;
+  mapPointers.set(event.pointerId, { clientX: event.clientX, clientY: event.clientY });
+  mapFrame.setPointerCapture(event.pointerId);
+
+  if (mapPointers.size >= 2) {
+    const metrics = getPinchMetrics();
+    if (metrics) {
+      pinchStart = {
+        distance: metrics.distance || 1,
+        zoom: state.view.zoom,
+        centerX: metrics.centerX,
+        centerY: metrics.centerY,
+      };
+    }
+    panStart = null;
+    mapFrame.classList.add("is-panning");
+    return;
+  }
+
   panStart = {
     pointerId: event.pointerId,
     x: event.clientX,
@@ -1941,7 +2057,6 @@ mapFrame.addEventListener("pointerdown", (event) => {
     panY: state.view.panY,
   };
   mapFrame.classList.add("is-panning");
-  mapFrame.setPointerCapture(event.pointerId);
 });
 
 mapFrame.addEventListener("click", (event) => {
@@ -1952,6 +2067,18 @@ mapFrame.addEventListener("click", (event) => {
 });
 
 mapFrame.addEventListener("pointermove", (event) => {
+  if (mapPointers.has(event.pointerId)) {
+    mapPointers.set(event.pointerId, { clientX: event.clientX, clientY: event.clientY });
+  }
+
+  if (pinchStart && mapPointers.size >= 2) {
+    const metrics = getPinchMetrics();
+    if (!metrics) return;
+    const nextZoom = pinchStart.zoom * (metrics.distance / pinchStart.distance);
+    setZoom(nextZoom, metrics.centerX, metrics.centerY, false);
+    return;
+  }
+
   if (!panStart || event.pointerId !== panStart.pointerId) return;
   state.view.panX = panStart.panX + event.clientX - panStart.x;
   state.view.panY = panStart.panY + event.clientY - panStart.y;
@@ -1960,14 +2087,21 @@ mapFrame.addEventListener("pointermove", (event) => {
 });
 
 mapFrame.addEventListener("pointerup", (event) => {
-  if (!panStart || event.pointerId !== panStart.pointerId) return;
-  panStart = null;
-  mapFrame.classList.remove("is-panning");
+  mapPointers.delete(event.pointerId);
+  if (pinchStart && mapPointers.size < 2) {
+    pinchStart = null;
+    panStart = null;
+  } else if (panStart && event.pointerId === panStart.pointerId) {
+    panStart = null;
+  }
+  if (mapPointers.size === 0) mapFrame.classList.remove("is-panning");
   saveState();
 });
 
 mapFrame.addEventListener("pointercancel", () => {
   panStart = null;
+  pinchStart = null;
+  mapPointers.clear();
   mapFrame.classList.remove("is-panning");
 });
 
