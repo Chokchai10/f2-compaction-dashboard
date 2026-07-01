@@ -377,7 +377,77 @@ select {
 }
 
 .map-content .base-map-image {
-  transition: opacity 0.22s ease;
+  opacity: 0;
+  transition: opacity 0.72s ease, filter 0.72s ease;
+}
+
+.map-content .base-map-image.active {
+  opacity: 1;
+}
+
+.map-timeline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 760px);
+  margin: 0 auto 10px;
+  padding: 8px 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(24, 32, 29, 0.08);
+}
+
+.timeline-play {
+  flex: 0 0 34px;
+}
+
+.timeline-track-wrap {
+  min-width: 0;
+  flex: 1;
+}
+
+.timeline-meta,
+.timeline-dates {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.timeline-meta {
+  margin-bottom: 2px;
+  font-size: 0.78rem;
+}
+
+.timeline-meta time {
+  color: var(--green);
+  font-weight: 800;
+}
+
+.map-timeline input[type="range"] {
+  width: 100%;
+  accent-color: var(--green);
+}
+
+.timeline-dates {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.map-frame.is-timelapse-transition::after {
+  content: "";
+  position: absolute;
+  z-index: 20;
+  inset: 0 auto 0 -12%;
+  width: 12%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.48), transparent);
+  animation: timeline-sweep 0.82s ease-out;
+}
+
+@keyframes timeline-sweep {
+  to { transform: translateX(930%); }
 }
 
 .work-overlay {

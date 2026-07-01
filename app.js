@@ -295,11 +295,29 @@ const dictionaries = {
   },
 };
 
+Object.assign(dictionaries.th, {
+  timelapse: "ภาพพื้นที่ตามช่วงเวลา",
+  playTimelapse: "เล่นภาพตามช่วงเวลา",
+  pauseTimelapse: "หยุดภาพตามช่วงเวลา",
+});
+Object.assign(dictionaries.en, {
+  timelapse: "Site time-lapse",
+  playTimelapse: "Play time-lapse",
+  pauseTimelapse: "Pause time-lapse",
+});
+Object.assign(dictionaries.zh, {
+  timelapse: "场地延时影像",
+  playTimelapse: "播放延时影像",
+  pauseTimelapse: "暂停延时影像",
+});
+
 const machineDefaults = [
   { id: "m1", type: "excavator", x: 28, y: 32, angle: 90 },
   { id: "m2", type: "excavator", x: 40, y: 36, angle: 90 },
   { id: "m3", type: "excavator", x: 55, y: 41, angle: 90 },
   { id: "m4", type: "excavator", x: 70, y: 50, angle: 90 },
+  { id: "m16", type: "excavator", x: 81, y: 34, angle: 90 },
+  { id: "m17", type: "excavator", x: 18, y: 61, angle: 90 },
   { id: "m5", type: "dozer", x: 21, y: 49, angle: 90 },
   { id: "m6", type: "dozer", x: 33, y: 50, angle: 90 },
   { id: "m7", type: "dozer", x: 45, y: 50, angle: 90 },
@@ -412,18 +430,19 @@ const defaultState = {
     { id: "zone-d", elevation: "3.0m", progress: 14 },
   ],
   fleet: [
-    { id: "excavator", count: 4, active: 4, hours: 8.5 },
+    { id: "excavator", count: 6, active: 6, hours: 8.5 },
     { id: "dozer", count: 8, active: 7, hours: 9 },
     { id: "grader", count: 1, active: 1, hours: 6.5 },
     { id: "roller", count: 2, active: 2, hours: 7.5 },
   ],
-  schemaVersion: 5,
+  schemaVersion: 6,
 };
 
 const storageKey = "f2-compaction-dashboard-state";
 const adminSessionKey = "f2-compaction-admin-session";
 const visitorCountKey = "f2-compaction-visitor-count";
 const visitorSessionKey = "f2-compaction-visitor-session";
+const timelineChoiceKey = "f2-compaction-timeline-choice";
 let state = loadState();
 const realtimeConfig = window.F2_REALTIME_CONFIG || {};
 let supabaseClient = null;
@@ -432,6 +451,8 @@ let remoteSaveTimer = null;
 let applyingRemoteState = false;
 let realtimeInitialized = false;
 let adminSyncPassword = "";
+let activeTimelineIndex = Math.min(1, Math.max(0, Number(localStorage.getItem(timelineChoiceKey)) || 0));
+let timelinePlayTimer = null;
 
 if (realtimeConfig.enabled) sessionStorage.removeItem(adminSessionKey);
 
@@ -453,6 +474,10 @@ const zoomOutButton = document.querySelector("#zoomOutButton");
 const resetViewButton = document.querySelector("#resetViewButton");
 const isoViewButton = document.querySelector("#isoViewButton");
 const mapRotateRange = document.querySelector("#mapRotateRange");
+const timelineRange = document.querySelector("#timelineRange");
+const timelineDate = document.querySelector("#timelineDate");
+const timelinePlayButton = document.querySelector("#timelinePlayButton");
+const timelineImages = document.querySelectorAll("[data-timeline-image]");
 const fullscreenMapButton = document.querySelector("#fullscreenMapButton");
 const toggleToolsButton = document.querySelector("#toggleToolsButton");
 const editModeSelect = document.querySelector("#editModeSelect");
@@ -593,6 +618,15 @@ function normalizeState(saved) {
   if ((saved.schemaVersion || 1) < 5) {
     normalized.referenceImages = structuredClone(defaultReferenceImages);
     normalized.schemaVersion = 5;
+  }
+
+  if ((saved.schemaVersion || 1) < 6) {
+    const excavatorFleet = normalized.fleet.find((item) => item.id === "excavator");
+    if (excavatorFleet) {
+      excavatorFleet.count = 6;
+      excavatorFleet.active = Math.max(6, Number(excavatorFleet.active) || 0);
+    }
+    normalized.schemaVersion = 6;
   }
 
   return normalized;
@@ -1022,6 +1056,32 @@ function applyMapView() {
   zoomRange.value = zoom;
   mapRotateRange.value = rotation || 0;
   updateToolButtons();
+}
+
+function renderMapTimeline(animate = false) {
+  timelineImages.forEach((image, index) => image.classList.toggle("active", index === activeTimelineIndex));
+  timelineRange.value = String(activeTimelineIndex);
+  timelineDate.textContent = activeTimelineIndex === 0 ? "09/06/2026" : "01/07/2026";
+  timelinePlayButton.textContent = timelinePlayTimer ? "Ⅱ" : "▶";
+  timelinePlayButton.setAttribute("aria-label", timelinePlayTimer ? t("pauseTimelapse") : t("playTimelapse"));
+  timelinePlayButton.title = timelinePlayButton.getAttribute("aria-label");
+  if (animate) {
+    mapFrame.classList.remove("is-timelapse-transition");
+    requestAnimationFrame(() => mapFrame.classList.add("is-timelapse-transition"));
+    window.setTimeout(() => mapFrame.classList.remove("is-timelapse-transition"), 850);
+  }
+}
+
+function setTimelineIndex(index, animate = true) {
+  activeTimelineIndex = Math.min(1, Math.max(0, Number(index) || 0));
+  localStorage.setItem(timelineChoiceKey, String(activeTimelineIndex));
+  renderMapTimeline(animate);
+}
+
+function stopTimelinePlayback() {
+  window.clearInterval(timelinePlayTimer);
+  timelinePlayTimer = null;
+  renderMapTimeline();
 }
 
 function updateToolButtons() {
@@ -1465,6 +1525,7 @@ function render() {
   updateZoneOpacity();
   updateMetrics();
   applyMapView();
+  renderMapTimeline();
   updateLastUpdated();
 }
 
@@ -1566,6 +1627,21 @@ mapRotateRange.addEventListener("input", (event) => {
 
 mapRotateRange.addEventListener("change", () => {
   saveState();
+});
+
+timelineRange.addEventListener("input", (event) => {
+  stopTimelinePlayback();
+  setTimelineIndex(event.target.value);
+});
+
+timelinePlayButton.addEventListener("click", () => {
+  if (timelinePlayTimer) {
+    stopTimelinePlayback();
+    return;
+  }
+  if (activeTimelineIndex === 1) setTimelineIndex(0, true);
+  timelinePlayTimer = window.setInterval(() => setTimelineIndex(activeTimelineIndex === 0 ? 1 : 0), 1800);
+  renderMapTimeline();
 });
 
 fullscreenMapButton.addEventListener("click", () => {
