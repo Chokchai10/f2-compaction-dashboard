@@ -311,6 +311,10 @@ Object.assign(dictionaries.zh, {
   pauseTimelapse: "暂停延时影像",
 });
 
+Object.assign(dictionaries.th, { rentalCompany: "บริษัทผู้ให้เช่า/สังกัด", offHire: "เลิกเช่า" });
+Object.assign(dictionaries.en, { rentalCompany: "Rental company / affiliation", offHire: "Off hire" });
+Object.assign(dictionaries.zh, { rentalCompany: "租赁公司 / 所属单位", offHire: "退租" });
+
 const machineDefaults = [
   { id: "m1", type: "excavator", x: 28, y: 32, angle: 90 },
   { id: "m2", type: "excavator", x: 40, y: 36, angle: 90 },
@@ -329,7 +333,23 @@ const machineDefaults = [
   { id: "m13", type: "grader", x: 51, y: 67, angle: 90 },
   { id: "m14", type: "roller", x: 42, y: 60, angle: 90 },
   { id: "m15", type: "roller", x: 62, y: 62, angle: 90 },
+  { id: "m18", type: "dozer", x: 36, y: 43, angle: 90 },
+  { id: "m19", type: "dozer", x: 74, y: 42, angle: 90 },
+  { id: "m20", type: "excavator", variant: "green", x: 60, y: 34, angle: 90 },
+  { id: "e0x1", type: "excavator", site: "e0", variant: "green", x: 30, y: 35, angle: 90 },
+  { id: "e0x2", type: "excavator", site: "e0", variant: "green", x: 48, y: 50, angle: 90 },
+  { id: "e0x3", type: "excavator", site: "e0", variant: "orange", x: 68, y: 62, angle: 90 },
+  { id: "e0d1", type: "dozer", site: "e0", x: 40, y: 64, angle: 90 },
+  { id: "e0g1", type: "grader", site: "e0", x: 56, y: 68, angle: 90 },
+  { id: "e0r1", type: "roller", site: "e0", x: 74, y: 55, angle: 90 },
+  { id: "pex1", type: "excavator", site: "pond", variant: "orange", x: 28, y: 42, angle: 90 },
+  { id: "pex2", type: "excavator", site: "pond", variant: "orange", x: 52, y: 52, angle: 90 },
+  { id: "pex3", type: "excavator", site: "pond", variant: "orange", x: 72, y: 40, angle: 90 },
 ];
+
+function getActiveMachines() {
+  return machineDefaults.filter((machine) => (machine.site || "f2") === mapChoice.siteId);
+}
 
 const defaultMachinePositions = Object.fromEntries(
   machineDefaults.map((machine) => [machine.id, { x: machine.x, y: machine.y, angle: machine.angle }])
@@ -379,12 +399,40 @@ const defaultGridFrame = [
   { x: 80, y: 595 },
 ];
 
+const mapCatalog = {
+  f2: {
+    title: "F2 Compaction",
+    ratio: "2708 / 1212",
+    maxWidth: "calc((100svh - 166px) * 2.234)",
+    grid: { start: 1050, end: 1975, final: 1985, step: 25, offsets: 360 },
+    dates: [
+      { label: "09/06/2026", imageIndex: 0 },
+      { label: "01/07/2026", imageIndex: 1 },
+    ],
+  },
+  e0: {
+    title: "3 E0 Stone Yard 3",
+    ratio: "678 / 316",
+    maxWidth: "calc((100svh - 166px) * 2.146)",
+    grid: { stations: [1000, 1025, 1050, 1100, 1125, 1150, 1175, 1200, 1212.664], final: 1212.664, offsets: 1150, stationAxis: "y", stationDirection: "forward", offsetDirection: "forward", labelEvery: 1 },
+    dates: [{ label: "04/07/2026", imageIndex: 2 }],
+  },
+  pond: {
+    title: "Area E Pond 1-4",
+    ratio: "678 / 316",
+    maxWidth: "calc((100svh - 166px) * 2.146)",
+    grid: { start: 1150, end: 2100, step: 25, offsets: 443, stationAxis: "x", stationDirection: "reverse", offsetDirection: "forward" },
+    dates: [{ label: "04/07/2026", imageIndex: 3 }],
+  },
+};
+
 const defaultMachineDetails = Object.fromEntries(
   machineDefaults.map((machine) => [
     machine.id,
     {
       operator: "",
       brand: machine.type === "excavator" ? "SANY" : "",
+      company: "",
       workTime: "08:00-17:00",
       status: "normal",
       downTime: "",
@@ -398,6 +446,30 @@ const defaultReferenceImages = [
   null,
   null,
 ];
+
+const defaultSiteWorkspaces = {
+  f2: {
+    routePoints: defaultRoutePoints,
+    routePointsSecondary: defaultRoutePointsSecondary,
+    routeDisplayCount: 2,
+    inspectionPlots: defaultInspectionPlots,
+    selectedPlotId: "F2-A1",
+  },
+  e0: {
+    routePoints: [{ x: 80, y: 560 }, { x: 310, y: 470 }, { x: 560, y: 350 }, { x: 900, y: 210 }],
+    routePointsSecondary: [{ x: 100, y: 630 }, { x: 350, y: 540 }, { x: 640, y: 430 }, { x: 920, y: 330 }],
+    routeDisplayCount: 2,
+    inspectionPlots: [],
+    selectedPlotId: "",
+  },
+  pond: {
+    routePoints: [{ x: 930, y: 570 }, { x: 720, y: 500 }, { x: 480, y: 400 }, { x: 120, y: 300 }],
+    routePointsSecondary: [{ x: 900, y: 620 }, { x: 680, y: 550 }, { x: 420, y: 470 }, { x: 90, y: 390 }],
+    routeDisplayCount: 2,
+    inspectionPlots: [],
+    selectedPlotId: "",
+  },
+};
 
 const defaultState = {
   language: "th",
@@ -414,11 +486,19 @@ const defaultState = {
   activeRouteLine: 2,
   inspectionPlots: defaultInspectionPlots,
   selectedPlotId: "F2-A1",
+  workspaceSiteId: "f2",
+  siteWorkspaces: defaultSiteWorkspaces,
   showStaGrid: false,
   showBoundary: true,
   showStatusBadge: true,
   machineTypeVisibility: { grader: true, excavator: true, dozer: true, roller: true },
   gridFrame: defaultGridFrame,
+  gridFrames: {
+    "f2-0": defaultGridFrame,
+    "f2-1": defaultGridFrame,
+    "e0-0": defaultGridFrame,
+    "pond-0": defaultGridFrame,
+  },
   machineDetails: defaultMachineDetails,
   referenceImages: defaultReferenceImages,
   activeMachineId: "m1",
@@ -430,19 +510,19 @@ const defaultState = {
     { id: "zone-d", elevation: "3.0m", progress: 14 },
   ],
   fleet: [
-    { id: "excavator", count: 6, active: 6, hours: 8.5 },
-    { id: "dozer", count: 8, active: 7, hours: 9 },
+    { id: "excavator", count: 7, active: 7, hours: 8.5 },
+    { id: "dozer", count: 10, active: 9, hours: 9 },
     { id: "grader", count: 1, active: 1, hours: 6.5 },
     { id: "roller", count: 2, active: 2, hours: 7.5 },
   ],
-  schemaVersion: 6,
+  schemaVersion: 9,
 };
 
 const storageKey = "f2-compaction-dashboard-state";
 const adminSessionKey = "f2-compaction-admin-session";
 const visitorCountKey = "f2-compaction-visitor-count";
 const visitorSessionKey = "f2-compaction-visitor-session";
-const timelineChoiceKey = "f2-compaction-timeline-choice";
+const timelineChoiceKey = "f2-compaction-map-choice";
 let state = loadState();
 const realtimeConfig = window.F2_REALTIME_CONFIG || {};
 let supabaseClient = null;
@@ -451,8 +531,13 @@ let remoteSaveTimer = null;
 let applyingRemoteState = false;
 let realtimeInitialized = false;
 let adminSyncPassword = "";
-let activeTimelineIndex = Math.min(1, Math.max(0, Number(localStorage.getItem(timelineChoiceKey)) || 0));
-let timelinePlayTimer = null;
+let mapChoice = (() => {
+  try {
+    return { siteId: "f2", dateIndex: 0, ...JSON.parse(localStorage.getItem(timelineChoiceKey) || "{}") };
+  } catch {
+    return { siteId: "f2", dateIndex: 0 };
+  }
+})();
 
 if (realtimeConfig.enabled) sessionStorage.removeItem(adminSessionKey);
 
@@ -474,12 +559,15 @@ const zoomOutButton = document.querySelector("#zoomOutButton");
 const resetViewButton = document.querySelector("#resetViewButton");
 const isoViewButton = document.querySelector("#isoViewButton");
 const mapRotateRange = document.querySelector("#mapRotateRange");
-const timelineRange = document.querySelector("#timelineRange");
-const timelineDate = document.querySelector("#timelineDate");
-const timelinePlayButton = document.querySelector("#timelinePlayButton");
+const siteTabs = document.querySelector("#siteTabs");
+const dateTabs = document.querySelector("#dateTabs");
 const timelineImages = document.querySelectorAll("[data-timeline-image]");
+const editCurrentGridButton = document.querySelector("#editCurrentGridButton");
+const resetCurrentGridButton = document.querySelector("#resetCurrentGridButton");
+const gridReferencePreview = document.querySelector("#gridReferencePreview");
 const fullscreenMapButton = document.querySelector("#fullscreenMapButton");
 const fullscreenExitButton = document.querySelector("#fullscreenExitButton");
+const openToolsButton = document.querySelector("#openToolsButton");
 const toggleToolsButton = document.querySelector("#toggleToolsButton");
 const editModeSelect = document.querySelector("#editModeSelect");
 const addRoutePointButton = document.querySelector("#addRoutePointButton");
@@ -584,11 +672,18 @@ function normalizeState(saved) {
     activeRouteLine: saved.activeRouteLine || base.activeRouteLine,
     inspectionPlots: saved.inspectionPlots || base.inspectionPlots,
     selectedPlotId: saved.selectedPlotId || base.selectedPlotId,
+    workspaceSiteId: saved.workspaceSiteId || "f2",
+    siteWorkspaces: { ...structuredClone(base.siteWorkspaces), ...(saved.siteWorkspaces || {}) },
     showStaGrid: saved.showStaGrid ?? base.showStaGrid,
     showBoundary: saved.showBoundary ?? base.showBoundary,
     showStatusBadge: saved.showStatusBadge ?? base.showStatusBadge,
     machineTypeVisibility: { ...base.machineTypeVisibility, ...(saved.machineTypeVisibility || {}) },
     gridFrame: saved.gridFrame || base.gridFrame,
+    gridFrames: {
+      ...base.gridFrames,
+      ...(saved.gridFrames || {}),
+      "f2-0": saved.gridFrames?.["f2-0"] || saved.gridFrame || base.gridFrames["f2-0"],
+    },
     machineDetails: { ...base.machineDetails, ...(saved.machineDetails || {}) },
     referenceImages: normalizeReferenceImages(saved.referenceImages || base.referenceImages),
     activeMachineId: saved.activeMachineId || base.activeMachineId,
@@ -596,6 +691,16 @@ function normalizeState(saved) {
     layers: saved.layers || base.layers,
     fleet: saved.fleet || base.fleet,
   };
+
+  if (!saved.siteWorkspaces?.f2) {
+    normalized.siteWorkspaces.f2 = {
+      routePoints: structuredClone(normalized.routePoints),
+      routePointsSecondary: structuredClone(normalized.routePointsSecondary),
+      routeDisplayCount: normalized.routeDisplayCount,
+      inspectionPlots: structuredClone(normalized.inspectionPlots),
+      selectedPlotId: normalized.selectedPlotId,
+    };
+  }
 
   if ((saved.schemaVersion || 1) < 2) {
     Object.keys(normalized.machinePositions).forEach((machineId) => {
@@ -628,6 +733,29 @@ function normalizeState(saved) {
       excavatorFleet.active = Math.max(6, Number(excavatorFleet.active) || 0);
     }
     normalized.schemaVersion = 6;
+  }
+
+  if ((saved.schemaVersion || 1) < 7) {
+    normalized.gridFrames = {
+      ...structuredClone(defaultState.gridFrames),
+      ...(saved.gridFrames || {}),
+      "f2-0": saved.gridFrames?.["f2-0"] || saved.gridFrame || structuredClone(defaultGridFrame),
+    };
+    normalized.schemaVersion = 7;
+  }
+
+  if ((saved.schemaVersion || 1) < 9) {
+    const excavatorFleet = normalized.fleet.find((item) => item.id === "excavator");
+    const dozerFleet = normalized.fleet.find((item) => item.id === "dozer");
+    if (excavatorFleet) {
+      excavatorFleet.count = 7;
+      excavatorFleet.active = Math.max(7, Number(excavatorFleet.active) || 0);
+    }
+    if (dozerFleet) {
+      dozerFleet.count = 10;
+      dozerFleet.active = Math.max(9, Number(dozerFleet.active) || 0);
+    }
+    normalized.schemaVersion = 9;
   }
 
   return normalized;
@@ -755,7 +883,32 @@ async function initializeRealtime() {
   }
 }
 
+function syncActiveWorkspace() {
+  const siteId = state.workspaceSiteId || "f2";
+  state.siteWorkspaces[siteId] = {
+    routePoints: structuredClone(state.routePoints),
+    routePointsSecondary: structuredClone(state.routePointsSecondary),
+    routeDisplayCount: state.routeDisplayCount,
+    inspectionPlots: structuredClone(state.inspectionPlots),
+    selectedPlotId: state.selectedPlotId,
+  };
+}
+
+function switchSiteWorkspace(siteId, persist = true) {
+  if (!mapCatalog[siteId] || state.workspaceSiteId === siteId) return;
+  syncActiveWorkspace();
+  const workspace = structuredClone(state.siteWorkspaces[siteId] || defaultSiteWorkspaces[siteId]);
+  state.routePoints = workspace.routePoints;
+  state.routePointsSecondary = workspace.routePointsSecondary;
+  state.routeDisplayCount = workspace.routeDisplayCount ?? 2;
+  state.inspectionPlots = workspace.inspectionPlots || [];
+  state.selectedPlotId = workspace.selectedPlotId || "";
+  state.workspaceSiteId = siteId;
+  if (persist) saveState();
+}
+
 function saveState() {
+  syncActiveWorkspace();
   state.lastUpdated = new Date().toISOString();
   localStorage.setItem(storageKey, JSON.stringify(state));
   updateLastUpdated();
@@ -872,7 +1025,7 @@ function renderMachineEditor() {
   machineTypeToggles.forEach((toggle) => {
     toggle.checked = state.machineTypeVisibility[toggle.dataset.machineTypeToggle] !== false;
   });
-  machineDefaults.forEach((machine) => {
+  getActiveMachines().forEach((machine) => {
     const details = state.machineDetails[machine.id] || {};
     const card = document.createElement("div");
     card.className = "machine-card";
@@ -891,6 +1044,10 @@ function renderMachineEditor() {
           <input data-machine-detail="${machine.id}" data-field="brand" type="text" value="${details.brand || ""}">
         </label>
         <label>
+          <span>${t("rentalCompany")}</span>
+          <input data-machine-detail="${machine.id}" data-field="company" type="text" value="${details.company || ""}">
+        </label>
+        <label>
           <span>${t("workTime")}</span>
           <input data-machine-detail="${machine.id}" data-field="workTime" type="text" value="${details.workTime || ""}" placeholder="08:00-17:00">
         </label>
@@ -900,6 +1057,7 @@ function renderMachineEditor() {
             <option value="normal" ${details.status === "normal" || !details.status ? "selected" : ""}>✓ ${t("onStatus")}</option>
             <option value="broken" ${details.status === "broken" ? "selected" : ""}>× ${t("broken")}</option>
             <option value="standby" ${details.status === "standby" ? "selected" : ""}>Ⅱ ${t("standby")}</option>
+            <option value="offhire" ${details.status === "offhire" ? "selected" : ""}>− ${t("offHire")}</option>
           </select>
         </label>
         <label>
@@ -922,6 +1080,7 @@ function renderMachineEditor() {
 }
 
 function machineStatusMeta(status) {
+  if (status === "offhire") return { value: "offhire", label: t("offHire"), symbol: "−" };
   if (status === "broken") return { value: "broken", label: t("stopBroken"), symbol: "×" };
   if (status === "standby") return { value: "standby", label: t("standby"), symbol: "Ⅱ" };
   return { value: "normal", label: t("onStatus"), symbol: "✓" };
@@ -944,7 +1103,8 @@ function renderMachineStatusBoard() {
   typeOrder.forEach((type) => {
     const group = document.createElement("section");
     group.className = `machine-status-group status-${type}`;
-    const machines = machineDefaults.filter((machine) => machine.type === type);
+    const machines = getActiveMachines().filter((machine) => machine.type === type);
+    if (!machines.length) return;
     const rows = machines
       .map((machine) => {
         const details = state.machineDetails[machine.id] || {};
@@ -956,11 +1116,12 @@ function renderMachineStatusBoard() {
               <label><input type="checkbox" data-machine-shift="${machine.id}" data-shift="night" ${shifts.night ? "checked" : ""} ${isAdmin() ? "" : "disabled"}><span>${t("nightShift")}</span></label>
             </div>`
           : "";
+        const affiliation = [details.brand, details.company].filter(Boolean).join(" · ") || "-";
         return `<div class="machine-status-row ${status.value}">
-          <div class="machine-status-id"><strong>${machine.id.toUpperCase()}</strong><span title="${escapeHtml(details.brand)}">${escapeHtml(details.brand) || "-"}</span></div>
+          <div class="machine-status-id"><strong>${machine.id.toUpperCase()}</strong><span title="${escapeHtml(affiliation)}">${escapeHtml(affiliation)}</span></div>
           <div class="machine-row-controls">
             <div class="status-options" role="radiogroup" aria-label="${machine.id.toUpperCase()} ${t("status")}">
-              ${["normal", "broken", "standby"]
+              ${["normal", "broken", "standby", "offhire"]
                 .map((value) => {
                   const option = machineStatusMeta(value);
                   return `<label class="status-option ${value}">
@@ -1021,14 +1182,14 @@ function renderReferenceImages() {
 function renderMachines() {
   machineLayer.innerHTML = "";
   machineLayer.classList.toggle("hide-status-badges", !state.showStatusBadge);
-  machineDefaults.forEach((machine) => {
+  getActiveMachines().forEach((machine) => {
     if (state.machineTypeVisibility[machine.type] === false) return;
     const position = state.machinePositions[machine.id] || machine;
     const details = state.machineDetails[machine.id] || {};
     const status = machineStatusMeta(details.status);
     const marker = document.createElement("button");
     marker.type = "button";
-    marker.className = `machine ${machine.type} ${status.value} ${
+    marker.className = `machine ${machine.type} ${machine.variant || ""} ${status.value} ${
       state.activeMachineId === machine.id ? "active-machine" : ""
     }`;
     marker.dataset.machineId = machine.id;
@@ -1059,13 +1220,31 @@ function applyMapView() {
   updateToolButtons();
 }
 
+function currentGridKey() {
+  return `${mapChoice.siteId}-${mapChoice.dateIndex}`;
+}
+
+function getCurrentGridFrame() {
+  return state.gridFrames[currentGridKey()] || structuredClone(defaultGridFrame);
+}
+
 function renderMapTimeline(animate = false) {
-  timelineImages.forEach((image, index) => image.classList.toggle("active", index === activeTimelineIndex));
-  timelineRange.value = String(activeTimelineIndex);
-  timelineDate.textContent = activeTimelineIndex === 0 ? "09/06/2026" : "01/07/2026";
-  timelinePlayButton.textContent = timelinePlayTimer ? "Ⅱ" : "▶";
-  timelinePlayButton.setAttribute("aria-label", timelinePlayTimer ? t("pauseTimelapse") : t("playTimelapse"));
-  timelinePlayButton.title = timelinePlayButton.getAttribute("aria-label");
+  const site = mapCatalog[mapChoice.siteId] || mapCatalog.f2;
+  mapChoice.dateIndex = Math.min(site.dates.length - 1, Math.max(0, Number(mapChoice.dateIndex) || 0));
+  const activeImageIndex = site.dates[mapChoice.dateIndex].imageIndex;
+  timelineImages.forEach((image, index) => image.classList.toggle("active", index === activeImageIndex));
+  siteTabs.querySelectorAll("[data-site-id]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.siteId === mapChoice.siteId);
+  });
+  dateTabs.innerHTML = site.dates
+    .map((date, index) => `<button class="date-tab ${index === mapChoice.dateIndex ? "active" : ""}" type="button" data-date-index="${index}">${date.label}</button>`)
+    .join("");
+  document.documentElement.style.setProperty("--map-ratio", site.ratio);
+  document.documentElement.style.setProperty("--map-max-width", site.maxWidth);
+  mapFrame.dataset.site = mapChoice.siteId;
+  mapSection.dataset.site = mapChoice.siteId;
+  document.querySelector("#mapTitle").textContent = site.title;
+  gridReferencePreview.hidden = mapChoice.siteId !== "e0";
   if (animate) {
     mapFrame.classList.remove("is-timelapse-transition");
     requestAnimationFrame(() => mapFrame.classList.add("is-timelapse-transition"));
@@ -1074,23 +1253,20 @@ function renderMapTimeline(animate = false) {
 }
 
 function setTimelineIndex(index, animate = true) {
-  activeTimelineIndex = Math.min(1, Math.max(0, Number(index) || 0));
-  localStorage.setItem(timelineChoiceKey, String(activeTimelineIndex));
+  const site = mapCatalog[mapChoice.siteId] || mapCatalog.f2;
+  mapChoice.dateIndex = Math.min(site.dates.length - 1, Math.max(0, Number(index) || 0));
+  localStorage.setItem(timelineChoiceKey, JSON.stringify(mapChoice));
   renderMapTimeline(animate);
-}
-
-function stopTimelinePlayback() {
-  window.clearInterval(timelinePlayTimer);
-  timelinePlayTimer = null;
-  renderMapTimeline();
+  renderMapEditor();
 }
 
 function updateToolButtons() {
   if (toggleToolsButton) {
     const collapsed = document.body.classList.contains("tools-collapsed");
-    toggleToolsButton.textContent = collapsed ? t("tools") : t("hideTools");
+    toggleToolsButton.textContent = t("hideTools");
     toggleToolsButton.setAttribute("aria-pressed", String(!collapsed));
-    toggleToolsButton.hidden = !isAdmin();
+    toggleToolsButton.hidden = !isAdmin() || collapsed;
+    if (openToolsButton) openToolsButton.hidden = !isAdmin() || !collapsed;
   }
 
   if (fullscreenMapButton) {
@@ -1183,7 +1359,7 @@ function renderMapEditor() {
   renderEditorHandles();
   editModeSelect.value = state.editMode;
   showStaGridInput.checked = state.showStaGrid;
-  showBoundaryInput.checked = state.showBoundary;
+  if (showBoundaryInput) showBoundaryInput.checked = state.showBoundary;
   showStatusBadgeInput.checked = state.showStatusBadge;
   routeCountSelect.value = String(state.routeDisplayCount);
   routeEditSelect.value = String(state.activeRouteLine || 1);
@@ -1194,7 +1370,7 @@ function lerpPoint(a, b, t) {
 }
 
 function gridPoint(u, v) {
-  const [tl, tr, br, bl] = state.gridFrame;
+  const [tl, tr, br, bl] = getCurrentGridFrame();
   const top = lerpPoint(tl, tr, u);
   const bottom = lerpPoint(bl, br, u);
   return lerpPoint(top, bottom, v);
@@ -1204,16 +1380,25 @@ function renderStaGrid() {
   staGridLayer.innerHTML = "";
   if (!state.showStaGrid) return;
 
-  const stations = [];
-  for (let sta = 1050; sta <= 1975; sta += 25) stations.push(sta);
-  stations.push(1985);
+  const config = mapCatalog[mapChoice.siteId]?.grid || mapCatalog.f2.grid;
+  const stations = config.stations ? [...config.stations] : [];
+  if (!config.stations) {
+    for (let sta = config.start; sta <= config.end; sta += config.step) stations.push(sta);
+  }
+  if (config.final && !stations.includes(config.final)) stations.push(config.final);
   const offsets = [];
-  for (let offset = 0; offset <= 360; offset += 20) offsets.push(offset);
+  for (let offset = 0; offset <= config.offsets; offset += 20) offsets.push(offset);
+  if (offsets[offsets.length - 1] !== config.offsets) offsets.push(config.offsets);
+
+  const stationAxis = config.stationAxis || "x";
+  const stationForward = config.stationDirection === "forward";
+  const offsetForward = config.offsetDirection === "forward";
 
   stations.forEach((sta, index) => {
-    const u = 1 - index / (stations.length - 1);
-    const a = gridPoint(u, 0);
-    const b = gridPoint(u, 1);
+    const raw = index / (stations.length - 1);
+    const position = stationForward ? raw : 1 - raw;
+    const a = stationAxis === "y" ? gridPoint(0, position) : gridPoint(position, 0);
+    const b = stationAxis === "y" ? gridPoint(1, position) : gridPoint(position, 1);
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("class", "sta-grid-line");
     line.setAttribute("x1", a.x);
@@ -1222,21 +1407,24 @@ function renderStaGrid() {
     line.setAttribute("y2", b.y);
     staGridLayer.appendChild(line);
 
-    if (index % 2 === 0 || sta === 1985) {
+    if (index % (config.labelEvery || 2) === 0 || sta === config.final) {
       const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
       label.setAttribute("class", "sta-grid-label");
-      label.setAttribute("x", a.x - 8);
-      label.setAttribute("y", a.y - 10);
-      label.setAttribute("transform", `rotate(-90 ${a.x - 8} ${a.y - 10})`);
-      label.textContent = `STA.1+${String(sta).slice(1)}`;
+      label.setAttribute("x", a.x - 10);
+      label.setAttribute("y", stationAxis === "y" ? a.y - 6 : a.y - 10);
+      if (stationAxis === "x") label.setAttribute("transform", `rotate(-90 ${a.x - 8} ${a.y - 10})`);
+      const stationWhole = Math.floor(sta);
+      const stationTail = sta % 1 ? (sta % 1000).toFixed(3).padStart(7, "0") : String(stationWhole % 1000).padStart(3, "0");
+      label.textContent = `STA.${Math.floor(sta / 1000)}+${stationTail}`;
       staGridLayer.appendChild(label);
     }
   });
 
   offsets.forEach((offset, index) => {
-    const v = 1 - index / (offsets.length - 1);
-    const a = gridPoint(0, v);
-    const b = gridPoint(1, v);
+    const raw = index / (offsets.length - 1);
+    const position = offsetForward ? raw : 1 - raw;
+    const a = stationAxis === "y" ? gridPoint(position, 0) : gridPoint(0, position);
+    const b = stationAxis === "y" ? gridPoint(position, 1) : gridPoint(1, position);
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("class", "sta-offset-line");
     line.setAttribute("x1", a.x);
@@ -1245,7 +1433,7 @@ function renderStaGrid() {
     line.setAttribute("y2", b.y);
     staGridLayer.appendChild(line);
 
-    if (index % 2 === 0) {
+    if (index % 2 === 0 || offset === config.offsets) {
       const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
       label.setAttribute("class", "sta-grid-label");
       label.setAttribute("x", b.x + 8);
@@ -1331,7 +1519,7 @@ function renderEditorHandles() {
     });
   }
   if (state.editMode === "grid") {
-    state.gridFrame.forEach((point, index) => {
+    getCurrentGridFrame().forEach((point, index) => {
       editorHandles.appendChild(makeHandle(point, "grid", index));
     });
   }
@@ -1395,29 +1583,31 @@ function buildMachineReport() {
   const date = reportDateInput.value || new Date().toISOString().slice(0, 10);
   const mapImageHref = document.querySelector(".map-content img")?.src || "assets/F2.jpg";
   const sandVolume = Number(state.truckTrips) * 30;
-  const broken = machineDefaults.filter((machine) => state.machineDetails[machine.id]?.status === "broken");
-  const standby = machineDefaults.filter((machine) => state.machineDetails[machine.id]?.status === "standby");
-  const normal = machineDefaults.length - broken.length - standby.length;
+  const activeSiteMachines = getActiveMachines();
+  const broken = activeSiteMachines.filter((machine) => state.machineDetails[machine.id]?.status === "broken");
+  const standby = activeSiteMachines.filter((machine) => state.machineDetails[machine.id]?.status === "standby");
+  const offhire = activeSiteMachines.filter((machine) => state.machineDetails[machine.id]?.status === "offhire");
+  const normal = activeSiteMachines.length - broken.length - standby.length - offhire.length;
   const lines = [
     `F2 Compaction Daily Report`,
     `Date: ${date}`,
     `Sand truck trips: ${state.truckTrips} trips (${sandVolume.toLocaleString()} m3)`,
-    `Machine status: ${normal}/${machineDefaults.length} on, ${standby.length} standby, ${broken.length} breakdown`,
+    `Machine status: ${normal}/${activeSiteMachines.length} on, ${standby.length} standby, ${broken.length} breakdown, ${offhire.length} off hire`,
     ``,
     `Machine details:`,
   ];
 
-  machineDefaults.forEach((machine) => {
+  activeSiteMachines.forEach((machine) => {
     const details = state.machineDetails[machine.id] || {};
     const position = state.machinePositions[machine.id] || {};
-    const status = details.status === "broken" ? "BREAKDOWN" : details.status === "standby" ? "STANDBY" : "ON";
+    const status = details.status === "broken" ? "BREAKDOWN" : details.status === "standby" ? "STANDBY" : details.status === "offhire" ? "OFF HIRE" : "ON";
     const shifts = machine.type === "dozer" && details.shifts
       ? ` | shifts: ${details.shifts.day ? "day" : "-"}/${details.shifts.night ? "night" : "-"}`
       : "";
     lines.push(
       `- ${machine.id.toUpperCase()} ${t(machine.type)} | ${status} | operator: ${details.operator || "-"} | brand: ${
         details.brand || "-"
-      } | work: ${details.workTime || "-"} | down: ${details.downTime || "-"}${shifts} | angle: ${position.angle || 0}°`
+      } | company: ${details.company || "-"} | work: ${details.workTime || "-"} | down: ${details.downTime || "-"}${shifts} | angle: ${position.angle || 0}°`
     );
   });
 
@@ -1452,12 +1642,12 @@ function buildMapSnapshotSvg() {
   const route = svgPoints(state.routePoints);
   const routeSecondary = svgPoints(state.routePointsSecondary);
   const boundary = svgPoints(state.boundaryPoints);
-  const machines = machineDefaults
+  const machines = getActiveMachines()
     .map((machine) => {
       const pos = state.machinePositions[machine.id] || machine;
       const detail = state.machineDetails[machine.id] || {};
-      const color = detail.status === "broken" ? "#d81f1f" : detail.status === "standby" ? "#d69214" : "#1f9d55";
-      const symbol = detail.status === "broken" ? "×" : detail.status === "standby" ? "Ⅱ" : "✓";
+      const color = detail.status === "broken" ? "#d81f1f" : detail.status === "standby" ? "#d69214" : detail.status === "offhire" ? "#68736d" : "#1f9d55";
+      const symbol = detail.status === "broken" ? "×" : detail.status === "standby" ? "Ⅱ" : detail.status === "offhire" ? "−" : "✓";
       return `<g transform="translate(${pos.x * 10} ${pos.y * 7}) rotate(${pos.angle || 0})">
         <rect x="-13" y="-8" width="26" height="16" rx="4" fill="${machine.type === "dozer" ? "#f08f24" : machine.type === "roller" ? "#6c757d" : machine.type === "grader" ? "#2f7fc1" : "#f4ba24"}" stroke="#fff" stroke-width="2"/>
         ${state.showStatusBadge ? `<circle cx="0" cy="-17" r="9" fill="${color}" stroke="#fff" stroke-width="2"/><text x="0" y="-13" text-anchor="middle" font-size="11" font-weight="900" fill="#fff">${symbol}</text>` : ""}
@@ -1497,8 +1687,9 @@ function updateMetrics() {
   const totalProgress = Math.round(
     state.layers.reduce((sum, layer) => sum + Number(layer.progress), 0) / state.layers.length
   );
-  const totalCount = machineDefaults.length;
-  const activeCount = machineDefaults.filter((machine) => !["broken", "standby"].includes(state.machineDetails[machine.id]?.status)).length;
+  const activeSiteMachines = getActiveMachines();
+  const totalCount = activeSiteMachines.length;
+  const activeCount = activeSiteMachines.filter((machine) => !["broken", "standby", "offhire"].includes(state.machineDetails[machine.id]?.status)).length;
   const totalHours = state.fleet.reduce((sum, item) => sum + Number(item.hours), 0);
   const sandVolume = Number(state.truckTrips) * 30;
 
@@ -1510,6 +1701,7 @@ function updateMetrics() {
 }
 
 function render() {
+  if (state.workspaceSiteId !== mapChoice.siteId) switchSiteWorkspace(mapChoice.siteId, false);
   updateVisitorCount();
   applyAuthMode();
   applyLanguage();
@@ -1630,19 +1822,38 @@ mapRotateRange.addEventListener("change", () => {
   saveState();
 });
 
-timelineRange.addEventListener("input", (event) => {
-  stopTimelinePlayback();
-  setTimelineIndex(event.target.value);
+siteTabs.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-site-id]");
+  if (!button || !mapCatalog[button.dataset.siteId]) return;
+  switchSiteWorkspace(button.dataset.siteId, false);
+  mapChoice = { siteId: button.dataset.siteId, dateIndex: 0 };
+  localStorage.setItem(timelineChoiceKey, JSON.stringify(mapChoice));
+  state.view = { zoom: 1, panX: 0, panY: 0, isometric: false, rotation: 0 };
+  render();
+  mapFrame.classList.remove("is-timelapse-transition");
+  requestAnimationFrame(() => mapFrame.classList.add("is-timelapse-transition"));
+  window.setTimeout(() => mapFrame.classList.remove("is-timelapse-transition"), 850);
 });
 
-timelinePlayButton.addEventListener("click", () => {
-  if (timelinePlayTimer) {
-    stopTimelinePlayback();
-    return;
-  }
-  if (activeTimelineIndex === 1) setTimelineIndex(0, true);
-  timelinePlayTimer = window.setInterval(() => setTimelineIndex(activeTimelineIndex === 0 ? 1 : 0), 1800);
-  renderMapTimeline();
+dateTabs.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-date-index]");
+  if (!button) return;
+  setTimelineIndex(button.dataset.dateIndex);
+});
+
+editCurrentGridButton.addEventListener("click", () => {
+  state.editMode = "grid";
+  editModeSelect.value = "grid";
+  state.showStaGrid = true;
+  saveState();
+  renderMapEditor();
+  mapFrame.scrollIntoView({ behavior: "smooth", block: "center" });
+});
+
+resetCurrentGridButton.addEventListener("click", () => {
+  state.gridFrames[currentGridKey()] = structuredClone(defaultGridFrame);
+  saveState();
+  renderMapEditor();
 });
 
 fullscreenMapButton.addEventListener("click", () => {
@@ -1670,6 +1881,15 @@ toggleToolsButton.addEventListener("click", () => {
     clampPan();
     applyMapView();
   }, 220);
+});
+
+openToolsButton.addEventListener("click", () => {
+  document.body.classList.remove("tools-collapsed");
+  updateToolButtons();
+  setTimeout(() => {
+    clampPan();
+    applyMapView();
+  }, 0);
 });
 
 document.addEventListener("fullscreenchange", () => {
@@ -1729,7 +1949,8 @@ addPlotEditorButton.addEventListener("click", () => {
 
 function addInspectionPlot() {
   const number = state.inspectionPlots.length + 1;
-  const id = `F2-${number}`;
+  const prefix = mapChoice.siteId === "e0" ? "E0" : mapChoice.siteId === "pond" ? "POND" : "F2";
+  const id = `${prefix}-${number}`;
   state.inspectionPlots.push({
     id,
     label: new Date().toISOString().slice(0, 10),
@@ -1747,13 +1968,15 @@ function addInspectionPlot() {
 }
 
 resetMapEditButton.addEventListener("click", () => {
+  const workspace = structuredClone(defaultSiteWorkspaces[mapChoice.siteId] || defaultSiteWorkspaces.f2);
   state.boundaryPoints = structuredClone(defaultBoundaryPoints);
-  state.routePoints = structuredClone(defaultRoutePoints);
-  state.routePointsSecondary = structuredClone(defaultRoutePointsSecondary);
-  state.routeDisplayCount = 2;
+  state.routePoints = workspace.routePoints;
+  state.routePointsSecondary = workspace.routePointsSecondary;
+  state.routeDisplayCount = workspace.routeDisplayCount;
   state.activeRouteLine = 2;
-  state.inspectionPlots = structuredClone(defaultInspectionPlots);
-  state.gridFrame = structuredClone(defaultGridFrame);
+  state.inspectionPlots = workspace.inspectionPlots;
+  state.selectedPlotId = workspace.selectedPlotId;
+  state.gridFrames[currentGridKey()] = structuredClone(defaultGridFrame);
   saveState();
   renderMapEditor();
 });
@@ -1764,11 +1987,13 @@ showStaGridInput.addEventListener("change", (event) => {
   renderMapEditor();
 });
 
-showBoundaryInput.addEventListener("change", (event) => {
-  state.showBoundary = event.target.checked;
-  saveState();
-  renderMapEditor();
-});
+if (showBoundaryInput) {
+  showBoundaryInput.addEventListener("change", (event) => {
+    state.showBoundary = event.target.checked;
+    saveState();
+    renderMapEditor();
+  });
+}
 
 showStatusBadgeInput.addEventListener("change", (event) => {
   state.showStatusBadge = event.target.checked;
@@ -1908,7 +2133,7 @@ function handleMachineEditorChange(event) {
       [field]: detailInput.value,
     };
     saveState();
-    if (["status", "brand"].includes(field)) renderMachineStatusBoard();
+    if (["status", "brand", "company"].includes(field)) renderMachineStatusBoard();
     renderMachines();
     updateMetrics();
   }
@@ -2185,7 +2410,9 @@ editorHandles.addEventListener("pointerdown", (event) => {
       const routePoints = Number(state.activeRouteLine) === 2 ? state.routePointsSecondary : state.routePoints;
       routePoints[index] = point;
     } else if (type === "grid") {
-      state.gridFrame[index] = point;
+      const frame = getCurrentGridFrame();
+      frame[index] = point;
+      state.gridFrames[currentGridKey()] = frame;
     } else if (type === "plot-move" && plotStart) {
       const dx = point.x - startPoint.x;
       const dy = point.y - startPoint.y;
@@ -2239,6 +2466,8 @@ resetButton.addEventListener("click", () => {
   render();
 });
 
+if (!mapCatalog[mapChoice.siteId]) mapChoice = { siteId: "f2", dateIndex: 0 };
+switchSiteWorkspace(mapChoice.siteId, false);
 render();
 initializeRealtime();
 if ("serviceWorker" in navigator && window.location.protocol === "https:") {

@@ -47,7 +47,7 @@
             <button class="ghost-button" id="isoViewButton" type="button" data-i18n="isoView">3D</button>
             <input class="rotate-range" id="mapRotateRange" type="range" min="0" max="360" step="5" value="0" aria-label="Rotate simulated view" />
             <button class="ghost-button" id="fullscreenMapButton" type="button" data-i18n="fullscreenMap">เต็มจอ</button>
-            <button class="ghost-button" id="toggleToolsButton" type="button" data-i18n="tools">เครื่องมือ</button>
+            <button class="ghost-button" id="openToolsButton" type="button" data-i18n="tools">เครื่องมือ</button>
             <div class="status-chip">
               <span class="live-dot"></span>
               <span data-i18n="adminMode">Admin Drag Mode</span>
@@ -55,16 +55,15 @@
           </div>
         </div>
 
-        <div class="map-timeline" aria-label="F2 background time-lapse">
-          <button class="icon-button timeline-play" id="timelinePlayButton" type="button" aria-label="Play time-lapse" title="Play time-lapse">▶</button>
-          <div class="timeline-track-wrap">
-            <div class="timeline-meta">
-              <strong data-i18n="timelapse">ภาพพื้นที่ตามช่วงเวลา</strong>
-              <time id="timelineDate">09/06/2026</time>
-            </div>
-            <input id="timelineRange" type="range" min="0" max="1" step="1" value="0" aria-label="Select F2 background date" />
-            <div class="timeline-dates" aria-hidden="true"><span>09/06/2026</span><span>01/07/2026</span></div>
-          </div>
+        <nav class="site-tabs" id="siteTabs" aria-label="เลือกพื้นที่">
+          <button class="site-tab active" type="button" data-site-id="f2">F2 Compaction</button>
+          <button class="site-tab" type="button" data-site-id="e0">3 E0 Stone Yard 3</button>
+          <button class="site-tab" type="button" data-site-id="pond">Area E Pond 1-4</button>
+        </nav>
+
+        <div class="map-timeline" aria-label="เลือกภาพพื้นที่ตามวันที่">
+          <strong data-i18n="timelapse">ภาพพื้นที่ตามช่วงเวลา</strong>
+          <div class="date-tabs" id="dateTabs"></div>
         </div>
 
         <div class="map-frame" id="mapFrame">
@@ -72,6 +71,8 @@
           <div class="map-content" id="mapContent">
             <img class="base-map-image active" src="assets/F2.jpg" alt="F2 reclamation and compaction site map on 09/06/2026" fetchpriority="high" decoding="async" data-timeline-image="0" />
             <img class="base-map-image" src="assets/F2-2026-07-01.jpg" alt="F2 reclamation and compaction site map on 01/07/2026" decoding="async" data-timeline-image="1" />
+            <img class="base-map-image" src="assets/E0-stone-yard3-2026-07-04.jpg" alt="3 E0 Stone Yard 3 aerial map" decoding="async" data-timeline-image="2" />
+            <img class="base-map-image" src="assets/Area-E-ponds-2026-07-04.jpg" alt="Area E Pond 1 to Pond 4 aerial map" decoding="async" data-timeline-image="3" />
             <svg class="work-overlay" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
               <defs>
                 <linearGradient id="zoneGradient" x1="0" x2="1" y1="0" y2="1">
@@ -143,6 +144,16 @@
         <section class="panel-section">
           <h2 data-i18n="adminTools">เครื่องมือแอดมิน</h2>
           <div class="admin-tools">
+            <button class="ghost-button hide-tools-control" id="toggleToolsButton" type="button" data-i18n="hideTools">ซ่อนเครื่องมือ</button>
+            <details class="grid-admin-tools">
+              <summary>STA/Offset Grid - ภาพที่เลือก</summary>
+              <p id="gridSaveNote">ค่ากริดบันทึกแยกตามพื้นที่และวันที่อัตโนมัติ</p>
+              <div class="tool-row">
+                <button class="ghost-button" id="editCurrentGridButton" type="button">ปรับมุมกริด</button>
+                <button class="ghost-button" id="resetCurrentGridButton" type="button">รีเซ็ตกริดภาพนี้</button>
+              </div>
+              <img class="grid-reference-preview" id="gridReferencePreview" src="assets/E0-sta-offset-reference.jpg" alt="E0 STA and Offset reference grid" hidden />
+            </details>
             <label>
               <span data-i18n="editMode">โหมดแก้ไข</span>
               <select id="editModeSelect">
@@ -183,10 +194,6 @@
             <label class="check-row">
               <input id="showStaGridInput" type="checkbox" />
               <span data-i18n="showStaGrid">แสดง STA/Offset Grid</span>
-            </label>
-            <label class="check-row">
-              <input id="showBoundaryInput" type="checkbox" />
-              <span data-i18n="showBoundary">แสดงขอบพื้นที่ F2</span>
             </label>
             <label class="check-row">
               <input id="showStatusBadgeInput" type="checkbox" />
