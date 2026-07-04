@@ -1,4 +1,4 @@
-const CACHE_NAME = "f2-dashboard-v5-preview";
+const CACHE_NAME = "f2-dashboard-v6-preview";
 const CORE_ASSETS = [
   "./",
   "./index.html",

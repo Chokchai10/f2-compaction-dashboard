@@ -469,7 +469,26 @@ const defaultSiteWorkspaces = {
     inspectionPlots: [],
     selectedPlotId: "",
   },
+  "f2-0": {
+    routePoints: structuredClone(defaultRoutePoints),
+    routePointsSecondary: structuredClone(defaultRoutePointsSecondary),
+    routeDisplayCount: 2,
+    inspectionPlots: structuredClone(defaultInspectionPlots),
+    selectedPlotId: "F2-A1",
+  },
+  "f2-1": {
+    routePoints: structuredClone(defaultRoutePoints),
+    routePointsSecondary: structuredClone(defaultRoutePointsSecondary),
+    routeDisplayCount: 2,
+    inspectionPlots: structuredClone(defaultInspectionPlots),
+    selectedPlotId: "F2-A1",
+  },
+  "e0-0": null,
+  "pond-0": null,
 };
+
+defaultSiteWorkspaces["e0-0"] = structuredClone(defaultSiteWorkspaces.e0);
+defaultSiteWorkspaces["pond-0"] = structuredClone(defaultSiteWorkspaces.pond);
 
 const defaultState = {
   language: "th",
@@ -487,6 +506,7 @@ const defaultState = {
   inspectionPlots: defaultInspectionPlots,
   selectedPlotId: "F2-A1",
   workspaceSiteId: "f2",
+  workspaceViewKey: "f2-0",
   siteWorkspaces: defaultSiteWorkspaces,
   showStaGrid: false,
   showBoundary: true,
@@ -515,7 +535,7 @@ const defaultState = {
     { id: "grader", count: 1, active: 1, hours: 6.5 },
     { id: "roller", count: 2, active: 2, hours: 7.5 },
   ],
-  schemaVersion: 9,
+  schemaVersion: 10,
 };
 
 const storageKey = "f2-compaction-dashboard-state";
@@ -673,6 +693,7 @@ function normalizeState(saved) {
     inspectionPlots: saved.inspectionPlots || base.inspectionPlots,
     selectedPlotId: saved.selectedPlotId || base.selectedPlotId,
     workspaceSiteId: saved.workspaceSiteId || "f2",
+    workspaceViewKey: saved.workspaceViewKey || `${saved.workspaceSiteId || "f2"}-0`,
     siteWorkspaces: { ...structuredClone(base.siteWorkspaces), ...(saved.siteWorkspaces || {}) },
     showStaGrid: saved.showStaGrid ?? base.showStaGrid,
     showBoundary: saved.showBoundary ?? base.showBoundary,
@@ -756,6 +777,22 @@ function normalizeState(saved) {
       dozerFleet.active = Math.max(9, Number(dozerFleet.active) || 0);
     }
     normalized.schemaVersion = 9;
+  }
+
+  if ((saved.schemaVersion || 1) < 10) {
+    const legacyF2 = normalized.siteWorkspaces.f2 || {
+      routePoints: normalized.routePoints,
+      routePointsSecondary: normalized.routePointsSecondary,
+      routeDisplayCount: normalized.routeDisplayCount,
+      inspectionPlots: normalized.inspectionPlots,
+      selectedPlotId: normalized.selectedPlotId,
+    };
+    if (!saved.siteWorkspaces?.["f2-0"]) normalized.siteWorkspaces["f2-0"] = structuredClone(legacyF2);
+    if (!saved.siteWorkspaces?.["f2-1"]) normalized.siteWorkspaces["f2-1"] = structuredClone(legacyF2);
+    if (!saved.siteWorkspaces?.["e0-0"]) normalized.siteWorkspaces["e0-0"] = structuredClone(normalized.siteWorkspaces.e0 || defaultSiteWorkspaces.e0);
+    if (!saved.siteWorkspaces?.["pond-0"]) normalized.siteWorkspaces["pond-0"] = structuredClone(normalized.siteWorkspaces.pond || defaultSiteWorkspaces.pond);
+    normalized.workspaceViewKey = `${normalized.workspaceSiteId || "f2"}-0`;
+    normalized.schemaVersion = 10;
   }
 
   return normalized;
@@ -884,8 +921,8 @@ async function initializeRealtime() {
 }
 
 function syncActiveWorkspace() {
-  const siteId = state.workspaceSiteId || "f2";
-  state.siteWorkspaces[siteId] = {
+  const viewKey = state.workspaceViewKey || `${state.workspaceSiteId || "f2"}-0`;
+  state.siteWorkspaces[viewKey] = {
     routePoints: structuredClone(state.routePoints),
     routePointsSecondary: structuredClone(state.routePointsSecondary),
     routeDisplayCount: state.routeDisplayCount,
@@ -894,16 +931,24 @@ function syncActiveWorkspace() {
   };
 }
 
-function switchSiteWorkspace(siteId, persist = true) {
-  if (!mapCatalog[siteId] || state.workspaceSiteId === siteId) return;
+function switchSiteWorkspace(siteId, dateIndex = 0, persist = true) {
+  if (!mapCatalog[siteId]) return;
+  const viewKey = `${siteId}-${dateIndex}`;
+  if (state.workspaceViewKey === viewKey) return;
   syncActiveWorkspace();
-  const workspace = structuredClone(state.siteWorkspaces[siteId] || defaultSiteWorkspaces[siteId]);
+  const workspace = structuredClone(
+    state.siteWorkspaces[viewKey] ||
+    state.siteWorkspaces[siteId] ||
+    defaultSiteWorkspaces[viewKey] ||
+    defaultSiteWorkspaces[siteId]
+  );
   state.routePoints = workspace.routePoints;
   state.routePointsSecondary = workspace.routePointsSecondary;
   state.routeDisplayCount = workspace.routeDisplayCount ?? 2;
   state.inspectionPlots = workspace.inspectionPlots || [];
   state.selectedPlotId = workspace.selectedPlotId || "";
   state.workspaceSiteId = siteId;
+  state.workspaceViewKey = viewKey;
   if (persist) saveState();
 }
 
@@ -1254,10 +1299,17 @@ function renderMapTimeline(animate = false) {
 
 function setTimelineIndex(index, animate = true) {
   const site = mapCatalog[mapChoice.siteId] || mapCatalog.f2;
-  mapChoice.dateIndex = Math.min(site.dates.length - 1, Math.max(0, Number(index) || 0));
+  const dateIndex = Math.min(site.dates.length - 1, Math.max(0, Number(index) || 0));
+  switchSiteWorkspace(mapChoice.siteId, dateIndex, false);
+  mapChoice.dateIndex = dateIndex;
   localStorage.setItem(timelineChoiceKey, JSON.stringify(mapChoice));
-  renderMapTimeline(animate);
-  renderMapEditor();
+  saveState();
+  render();
+  if (animate) {
+    mapFrame.classList.remove("is-timelapse-transition");
+    requestAnimationFrame(() => mapFrame.classList.add("is-timelapse-transition"));
+    window.setTimeout(() => mapFrame.classList.remove("is-timelapse-transition"), 850);
+  }
 }
 
 function updateToolButtons() {
@@ -1701,7 +1753,7 @@ function updateMetrics() {
 }
 
 function render() {
-  if (state.workspaceSiteId !== mapChoice.siteId) switchSiteWorkspace(mapChoice.siteId, false);
+  if (state.workspaceViewKey !== currentGridKey()) switchSiteWorkspace(mapChoice.siteId, mapChoice.dateIndex, false);
   updateVisitorCount();
   applyAuthMode();
   applyLanguage();
@@ -1825,7 +1877,7 @@ mapRotateRange.addEventListener("change", () => {
 siteTabs.addEventListener("click", (event) => {
   const button = event.target.closest("[data-site-id]");
   if (!button || !mapCatalog[button.dataset.siteId]) return;
-  switchSiteWorkspace(button.dataset.siteId, false);
+  switchSiteWorkspace(button.dataset.siteId, 0, false);
   mapChoice = { siteId: button.dataset.siteId, dateIndex: 0 };
   localStorage.setItem(timelineChoiceKey, JSON.stringify(mapChoice));
   state.view = { zoom: 1, panX: 0, panY: 0, isometric: false, rotation: 0 };
@@ -1968,7 +2020,7 @@ function addInspectionPlot() {
 }
 
 resetMapEditButton.addEventListener("click", () => {
-  const workspace = structuredClone(defaultSiteWorkspaces[mapChoice.siteId] || defaultSiteWorkspaces.f2);
+  const workspace = structuredClone(defaultSiteWorkspaces[currentGridKey()] || defaultSiteWorkspaces[mapChoice.siteId] || defaultSiteWorkspaces.f2);
   state.boundaryPoints = structuredClone(defaultBoundaryPoints);
   state.routePoints = workspace.routePoints;
   state.routePointsSecondary = workspace.routePointsSecondary;
@@ -2467,7 +2519,7 @@ resetButton.addEventListener("click", () => {
 });
 
 if (!mapCatalog[mapChoice.siteId]) mapChoice = { siteId: "f2", dateIndex: 0 };
-switchSiteWorkspace(mapChoice.siteId, false);
+switchSiteWorkspace(mapChoice.siteId, mapChoice.dateIndex, false);
 render();
 initializeRealtime();
 if ("serviceWorker" in navigator && window.location.protocol === "https:") {
