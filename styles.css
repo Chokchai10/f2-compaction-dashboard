@@ -995,6 +995,33 @@ select {
   max-width: 100%;
 }
 
+.viewer-layer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: min(100%, var(--map-max-width));
+  margin: 7px auto 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.viewer-layer-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.viewer-layer-controls input {
+  accent-color: var(--green);
+}
+
 .reference-panel {
   width: min(100%, calc((100svh - 166px) * 2.234));
   margin: 10px auto 0;
@@ -1361,7 +1388,16 @@ body.map-fullscreen .control-panel,
 body.map-fullscreen .machine-status-panel,
 body.map-fullscreen .reference-panel,
 body.map-fullscreen .map-timeline,
-body.map-fullscreen .drag-hint {
+body.map-fullscreen .drag-hint,
+body.map-fullscreen .viewer-layer-controls {
+  display: none;
+}
+
+.map-section:fullscreen .map-timeline,
+.map-section:fullscreen .drag-hint,
+.map-section:fullscreen .viewer-layer-controls,
+.map-section:fullscreen .machine-status-panel,
+.map-section:fullscreen .reference-panel {
   display: none;
 }
 

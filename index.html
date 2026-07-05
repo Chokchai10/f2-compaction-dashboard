@@ -100,6 +100,11 @@
           </div>
         </div>
         <div class="drag-hint" data-i18n="dragHint">ใช้ล้อเมาส์หรือสองนิ้วเพื่อซูม, ลากพื้นแผนที่เพื่อเลื่อน, ลากเครื่องจักรเพื่ออัปเดตพิกัด</div>
+        <div class="viewer-layer-controls" aria-label="ตัวเลือกการแสดงผลแผนที่">
+          <strong>แสดงบนแผนที่</strong>
+          <label><input id="viewerGridToggle" type="checkbox" /> STA/Offset Grid</label>
+          <label><input id="viewerInspectionToggle" type="checkbox" checked /> Inspection</label>
+        </div>
         <section class="machine-status-panel" aria-labelledby="machineStatusTitle">
           <div class="machine-status-head">
             <strong id="machineStatusTitle" data-i18n="machineWorkingStatus">สถานะการทำงานของเครื่องจักร</strong>
@@ -234,7 +239,7 @@
           </div>
         </section>
 
-        <section class="panel-section">
+        <section class="panel-section compaction-layers-panel">
           <h2 data-i18n="layers">ชั้นบดอัด</h2>
           <div class="layer-list" id="layerList"></div>
         </section>

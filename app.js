@@ -543,7 +543,11 @@ const adminSessionKey = "f2-compaction-admin-session";
 const visitorCountKey = "f2-compaction-visitor-count";
 const visitorSessionKey = "f2-compaction-visitor-session";
 const timelineChoiceKey = "f2-compaction-map-choice";
+const layerVisibilityKey = "f2-compaction-layer-visibility";
 let state = loadState();
+let layerVisibilityPrefs = (() => {
+  try { return JSON.parse(localStorage.getItem(layerVisibilityKey) || "{}"); } catch { return {}; }
+})();
 const realtimeConfig = window.F2_REALTIME_CONFIG || {};
 let supabaseClient = null;
 let realtimeChannel = null;
@@ -606,6 +610,9 @@ const sectionVisual = document.querySelector("#sectionVisual");
 const closeSectionButton = document.querySelector("#closeSectionButton");
 const staGridLayer = document.querySelector("#staGridLayer");
 const showStaGridInput = document.querySelector("#showStaGridInput");
+const viewerGridToggle = document.querySelector("#viewerGridToggle");
+const viewerInspectionToggle = document.querySelector("#viewerInspectionToggle");
+const compactionLayersPanel = document.querySelector(".compaction-layers-panel");
 const showBoundaryInput = document.querySelector("#showBoundaryInput");
 const showStatusBadgeInput = document.querySelector("#showStatusBadgeInput");
 const routeCountSelect = document.querySelector("#routeCountSelect");
@@ -1269,6 +1276,18 @@ function currentGridKey() {
   return `${mapChoice.siteId}-${mapChoice.dateIndex}`;
 }
 
+function currentLayerVisibility() {
+  const key = currentGridKey();
+  if (!layerVisibilityPrefs[key]) {
+    layerVisibilityPrefs[key] = { grid: Boolean(state.showStaGrid), inspection: true };
+  }
+  return layerVisibilityPrefs[key];
+}
+
+function saveLayerVisibility() {
+  localStorage.setItem(layerVisibilityKey, JSON.stringify(layerVisibilityPrefs));
+}
+
 function getCurrentGridFrame() {
   return state.gridFrames[currentGridKey()] || structuredClone(defaultGridFrame);
 }
@@ -1288,6 +1307,7 @@ function renderMapTimeline(animate = false) {
   document.documentElement.style.setProperty("--map-max-width", site.maxWidth);
   mapFrame.dataset.site = mapChoice.siteId;
   mapSection.dataset.site = mapChoice.siteId;
+  if (compactionLayersPanel) compactionLayersPanel.hidden = mapChoice.siteId !== "f2";
   document.querySelector("#mapTitle").textContent = site.title;
   gridReferencePreview.hidden = mapChoice.siteId !== "e0";
   if (animate) {
@@ -1411,6 +1431,9 @@ function renderMapEditor() {
   renderEditorHandles();
   editModeSelect.value = state.editMode;
   showStaGridInput.checked = state.showStaGrid;
+  const visibility = currentLayerVisibility();
+  viewerGridToggle.checked = visibility.grid;
+  viewerInspectionToggle.checked = visibility.inspection;
   if (showBoundaryInput) showBoundaryInput.checked = state.showBoundary;
   showStatusBadgeInput.checked = state.showStatusBadge;
   routeCountSelect.value = String(state.routeDisplayCount);
@@ -1430,7 +1453,7 @@ function gridPoint(u, v) {
 
 function renderStaGrid() {
   staGridLayer.innerHTML = "";
-  if (!state.showStaGrid) return;
+  if (!currentLayerVisibility().grid) return;
 
   const config = mapCatalog[mapChoice.siteId]?.grid || mapCatalog.f2.grid;
   const stations = config.stations ? [...config.stations] : [];
@@ -1498,6 +1521,7 @@ function renderStaGrid() {
 
 function renderInspectionPlots() {
   inspectionLayer.innerHTML = "";
+  if (!currentLayerVisibility().inspection) return;
   state.inspectionPlots.forEach((plot) => {
     const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     rect.setAttribute("class", "inspection-plot");
@@ -1530,7 +1554,15 @@ function formatElevationLabel(level) {
   return `ELV. ${value} m`;
 }
 
+function getPlotLevels() {
+  if (mapChoice.siteId === "e0") return ["3.3m"];
+  if (mapChoice.siteId === "pond") return ["3.4m", "3.8-4.2m"];
+  return ["1.6m", "2.0m", "2.4m", "3.0m"];
+}
+
 function renderPlotEditor() {
+  const levels = getPlotLevels();
+  plotLevelSelect.innerHTML = levels.map((level) => `<option value="${level}">${level}</option>`).join("");
   plotSelect.innerHTML = "";
   state.inspectionPlots.forEach((plot) => {
     const option = document.createElement("option");
@@ -1546,7 +1578,7 @@ function renderPlotEditor() {
   const selected = state.inspectionPlots.find((plot) => plot.id === state.selectedPlotId);
   plotSelect.value = state.selectedPlotId;
   plotLabelInput.value = selected?.label || "";
-  plotLevelSelect.value = selected?.level || "2.0m";
+  plotLevelSelect.value = levels.includes(selected?.level) ? selected.level : levels[0];
   plotColorInput.value = selected?.color || "#1577b8";
 }
 
@@ -1564,13 +1596,13 @@ function renderEditorHandles() {
       editorHandles.appendChild(makeHandle(point, "route", index));
     });
   }
-  if (state.editMode === "plot") {
+  if (state.editMode === "plot" && currentLayerVisibility().inspection) {
     state.inspectionPlots.forEach((plot, index) => {
       editorHandles.appendChild(makeHandle({ x: plot.x, y: plot.y }, "plot-move", index));
       editorHandles.appendChild(makeHandle({ x: plot.x + plot.w, y: plot.y + plot.h }, "plot-resize", index));
     });
   }
-  if (state.editMode === "grid") {
+  if (state.editMode === "grid" && currentLayerVisibility().grid) {
     getCurrentGridFrame().forEach((point, index) => {
       editorHandles.appendChild(makeHandle(point, "grid", index));
     });
@@ -1897,6 +1929,8 @@ editCurrentGridButton.addEventListener("click", () => {
   state.editMode = "grid";
   editModeSelect.value = "grid";
   state.showStaGrid = true;
+  currentLayerVisibility().grid = true;
+  saveLayerVisibility();
   saveState();
   renderMapEditor();
   mapFrame.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -2000,13 +2034,15 @@ addPlotEditorButton.addEventListener("click", () => {
 });
 
 function addInspectionPlot() {
+  currentLayerVisibility().inspection = true;
+  saveLayerVisibility();
   const number = state.inspectionPlots.length + 1;
   const prefix = mapChoice.siteId === "e0" ? "E0" : mapChoice.siteId === "pond" ? "POND" : "F2";
   const id = `${prefix}-${number}`;
   state.inspectionPlots.push({
     id,
     label: new Date().toISOString().slice(0, 10),
-    level: "2.0m",
+    level: getPlotLevels()[0],
     color: "#1577b8",
     x: 420,
     y: 360,
@@ -2035,8 +2071,24 @@ resetMapEditButton.addEventListener("click", () => {
 
 showStaGridInput.addEventListener("change", (event) => {
   state.showStaGrid = event.target.checked;
+  currentLayerVisibility().grid = event.target.checked;
+  saveLayerVisibility();
   saveState();
   renderMapEditor();
+});
+
+viewerGridToggle.addEventListener("change", (event) => {
+  currentLayerVisibility().grid = event.target.checked;
+  saveLayerVisibility();
+  renderStaGrid();
+  renderEditorHandles();
+});
+
+viewerInspectionToggle.addEventListener("change", (event) => {
+  currentLayerVisibility().inspection = event.target.checked;
+  saveLayerVisibility();
+  renderInspectionPlots();
+  renderEditorHandles();
 });
 
 if (showBoundaryInput) {
