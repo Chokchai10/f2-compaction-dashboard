@@ -408,6 +408,7 @@ const mapCatalog = {
     dates: [
       { label: "09/06/2026", imageIndex: 0 },
       { label: "01/07/2026", imageIndex: 1 },
+      { label: "07/07/2026", imageIndex: 4 },
     ],
   },
   e0: {
@@ -483,6 +484,13 @@ const defaultSiteWorkspaces = {
     inspectionPlots: structuredClone(defaultInspectionPlots),
     selectedPlotId: "F2-A1",
   },
+  "f2-2": {
+    routePoints: structuredClone(defaultRoutePoints),
+    routePointsSecondary: structuredClone(defaultRoutePointsSecondary),
+    routeDisplayCount: 2,
+    inspectionPlots: structuredClone(defaultInspectionPlots),
+    selectedPlotId: "F2-A1",
+  },
   "e0-0": null,
   "pond-0": null,
 };
@@ -516,6 +524,7 @@ const defaultState = {
   gridFrames: {
     "f2-0": defaultGridFrame,
     "f2-1": defaultGridFrame,
+    "f2-2": defaultGridFrame,
     "e0-0": defaultGridFrame,
     "pond-0": defaultGridFrame,
   },
@@ -535,7 +544,7 @@ const defaultState = {
     { id: "grader", count: 1, active: 1, hours: 6.5 },
     { id: "roller", count: 2, active: 2, hours: 7.5 },
   ],
-  schemaVersion: 10,
+  schemaVersion: 11,
 };
 
 const storageKey = "f2-compaction-dashboard-state";
@@ -800,6 +809,13 @@ function normalizeState(saved) {
     if (!saved.siteWorkspaces?.["pond-0"]) normalized.siteWorkspaces["pond-0"] = structuredClone(normalized.siteWorkspaces.pond || defaultSiteWorkspaces.pond);
     normalized.workspaceViewKey = `${normalized.workspaceSiteId || "f2"}-0`;
     normalized.schemaVersion = 10;
+  }
+
+  if ((saved.schemaVersion || 1) < 11) {
+    const latestF2 = saved.siteWorkspaces?.["f2-1"] || normalized.siteWorkspaces["f2-1"] || normalized.siteWorkspaces.f2;
+    normalized.siteWorkspaces["f2-2"] = structuredClone(latestF2 || defaultSiteWorkspaces["f2-2"]);
+    normalized.gridFrames["f2-2"] = structuredClone(saved.gridFrames?.["f2-1"] || normalized.gridFrames["f2-1"] || defaultGridFrame);
+    normalized.schemaVersion = 11;
   }
 
   return normalized;

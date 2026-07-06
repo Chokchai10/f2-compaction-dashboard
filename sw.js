@@ -1,4 +1,4 @@
-const CACHE_NAME = "f2-dashboard-v7-preview";
+const CACHE_NAME = "f2-dashboard-v8";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -7,6 +7,7 @@ const CORE_ASSETS = [
   "./realtime-config.js",
   "./assets/F2.jpg",
   "./assets/F2-2026-07-01.jpg",
+  "./assets/F2-2026-07-07.jpg",
   "./assets/E0-stone-yard3-2026-07-04.jpg",
   "./assets/E0-sta-offset-reference.jpg",
   "./assets/Area-E-ponds-2026-07-04.jpg",
